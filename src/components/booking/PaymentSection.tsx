@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
+import { formatINR } from '@/lib/formatCurrency';
 import { ArrowLeft, Upload, Loader2, Copy, Check } from 'lucide-react';
 
 interface PaymentSectionProps {
@@ -105,7 +106,7 @@ export function PaymentSection({ totalAmount, onBack, onPaymentComplete, loading
         {/* Amount Summary */}
         <div className="bg-primary/10 rounded-lg p-4 text-center">
           <p className="text-sm text-muted-foreground mb-1">Total Amount</p>
-          <p className="text-3xl font-bold text-primary">₹{totalAmount}</p>
+          <p className="text-3xl font-bold text-primary">{formatINR(totalAmount)}</p>
         </div>
 
         {/* Payment Instructions */}
@@ -113,7 +114,7 @@ export function PaymentSection({ totalAmount, onBack, onPaymentComplete, loading
           <h3 className="font-semibold">Payment Instructions:</h3>
           <ol className="list-decimal list-inside space-y-2 text-sm text-muted-foreground">
             <li>Scan the QR code below or use the UPI ID</li>
-            <li>Enter the exact amount: ₹{totalAmount}</li>
+            <li>Enter the exact amount: {formatINR(totalAmount)}</li>
             <li>Complete the payment in your UPI app</li>
             <li>Take a screenshot of the payment confirmation</li>
             <li>Upload the screenshot below</li>
@@ -126,10 +127,11 @@ export function PaymentSection({ totalAmount, onBack, onPaymentComplete, loading
           <div className="text-center">
             <h4 className="font-medium mb-3">Scan QR Code</h4>
             <div className="bg-white p-4 rounded-lg inline-block">
+              {/* Use provided scanner image from public/ as requested by owner */}
               <img
-                src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=upi://pay?pa=${UPI_ID}&am=${totalAmount}&cu=INR&tn=Continental+Entertainments+Booking`}
-                alt="UPI QR Code"
-                className="w-48 h-48"
+                src="/536956508_1068665405351431_6436867969660641199_n.jpg"
+                alt="Continental Entertainments UPI QR Scanner"
+                className="w-48 h-48 object-contain"
               />
             </div>
             <p className="text-xs text-muted-foreground mt-2">

@@ -6,6 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
+import { formatINR } from '@/lib/formatCurrency';
 import { Eye, Check, X, Users } from 'lucide-react';
 
 interface Booking {
@@ -218,7 +219,7 @@ export function BookingsManager() {
                         </div>
                       </TableCell>
                       <TableCell className="font-medium">
-                        ₹{booking.total_amount.toFixed(2)}
+                        {formatINR(booking.total_amount)}
                       </TableCell>
                       <TableCell>
                         {getStatusBadge(booking.status)}

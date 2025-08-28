@@ -76,30 +76,47 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signUp = async (email: string, password: string) => {
-    const redirectUrl = `${window.location.origin}/`;
-    
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: redirectUrl
-      }
-    });
-    
+    // Try to sign up then immediately sign in.
+    // Note: If your Supabase project requires email confirmations, the immediate sign-in may fail
+    // and the user will still need to confirm via email. For fully bypassing confirmation, a
+    // server-side admin user creation (using the service_role key) is required.
+    const { data, error } = await supabase.auth.signUp({ email, password });
+
     if (error) {
       toast({
         title: "Error",
         description: error.message,
         variant: "destructive",
       });
-    } else {
+      return { error };
+    }
+
+    // If signUp returned a session (some Supabase configs allow instant sign in), we're done.
+    if (data?.session) {
       toast({
         title: "Success",
-        description: "Check your email to confirm your account",
+        description: "Account created and signed in",
       });
+      return { error: null };
     }
-    
-    return { error };
+
+    // Otherwise attempt to sign in immediately (works when email confirm is not enforced)
+    const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+    if (signInError) {
+      // Inform the user that confirmation may be required depending on Supabase settings
+      toast({
+        title: "Check your email",
+        description: "A confirmation link may have been sent. If you don't receive it, contact the site owner.",
+      });
+      return { error: signInError };
+    }
+
+    toast({
+      title: "Success",
+      description: "Account created and signed in",
+    });
+
+    return { error: null };
   };
 
   const signOut = async () => {

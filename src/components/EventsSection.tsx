@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { Calendar, MapPin, Clock, Users } from 'lucide-react';
 
 const EventsSection = () => {
@@ -11,7 +12,7 @@ const EventsSection = () => {
       venue: 'Underground Club',
       location: 'Downtown District',
       attendees: 250,
-      price: '$35',
+  price: '₹35',
       status: 'tickets-available'
     },
     {
@@ -22,7 +23,7 @@ const EventsSection = () => {
       venue: 'Warehouse 21',
       location: 'Industrial Zone',
       attendees: 400,
-      price: '$45',
+  price: '₹45',
       status: 'selling-fast'
     },
     {
@@ -33,7 +34,7 @@ const EventsSection = () => {
       venue: 'Rooftop Lounge',
       location: 'City Center',
       attendees: 180,
-      price: '$50',
+  price: '₹50',
       status: 'vip-only'
     }
   ];
@@ -45,6 +46,12 @@ const EventsSection = () => {
       'vip-only': { text: 'VIP ONLY', color: 'border-muted-gray text-muted-gray' }
     };
     return badges[status as keyof typeof badges];
+  };
+
+  const navigate = useNavigate();
+
+  const handleBuy = (id: number) => {
+    navigate(`/book/${id}`);
   };
 
   return (
@@ -132,6 +139,7 @@ const EventsSection = () => {
                 whileTap={{ scale: 0.95 }}
                 className="w-full btn-neon group-hover:shadow-neon-lg transition-all duration-300"
                 disabled={event.status === 'vip-only'}
+                onClick={() => event.status !== 'vip-only' && handleBuy(event.id)}
               >
                 {event.status === 'vip-only' ? 'VIP ACCESS ONLY' : 'BUY TICKETS'}
               </motion.button>
@@ -151,6 +159,7 @@ const EventsSection = () => {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             className="btn-red"
+            onClick={() => navigate('/events')}
           >
             VIEW ALL EVENTS
           </motion.button>

@@ -11,6 +11,7 @@ import { CheckoutForm } from '@/components/booking/CheckoutForm';
 import { Calendar, MapPin, Clock, ArrowLeft } from 'lucide-react';
 import { format } from 'date-fns';
 import { Link } from 'react-router-dom';
+import { formatINR } from '@/lib/formatCurrency';
 
 interface Event {
   id: string;
@@ -238,10 +239,10 @@ export default function EventBooking() {
                           <div>
                             <p className="font-medium">{ticket.name}</p>
                             <p className="text-sm text-muted-foreground">
-                              ₹{ticket.price} × {ticket.quantity}
+                              {formatINR(ticket.price)} × {ticket.quantity}
                             </p>
                           </div>
-                          <p className="font-medium">₹{ticket.price * ticket.quantity}</p>
+                          <p className="font-medium">{formatINR(ticket.price * ticket.quantity)}</p>
                         </div>
                       ))}
                       
@@ -254,7 +255,7 @@ export default function EventBooking() {
                             </p>
                           </div>
                           <p className="text-xl font-bold text-primary">
-                            ₹{getTotalAmount()}
+                            {formatINR(getTotalAmount())}
                           </p>
                         </div>
                       </div>

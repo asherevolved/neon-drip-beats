@@ -11,7 +11,7 @@ const BookDJSection = () => {
     {
       id: 'basic',
       name: 'BASIC BEATS',
-      price: '$500',
+      price: '₹500',
       duration: '4 Hours',
       features: [
         'Professional DJ Setup',
@@ -25,7 +25,7 @@ const BookDJSection = () => {
     {
       id: 'premium',
       name: 'NEON EXPERIENCE',
-      price: '$1,200',
+      price: '₹1,200',
       duration: '6 Hours',
       features: [
         'Premium DJ & MC Services',
@@ -42,7 +42,7 @@ const BookDJSection = () => {
     {
       id: 'ultimate',
       name: 'LIQUID DREAMS',
-      price: '$2,500',
+      price: '₹2,500',
       duration: '8 Hours',
       features: [
         'Elite DJ & Production Team',

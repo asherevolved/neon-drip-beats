@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Minus, Plus } from 'lucide-react';
+import { formatINR } from '@/lib/formatCurrency';
 
 interface TicketType {
   id: string;
@@ -110,7 +111,7 @@ export function TicketSelector({ ticketTypes, selectedTickets, onTicketChange, o
                     </div>
                     <div className="flex items-center gap-4 text-sm text-muted-foreground">
                       <span className="text-lg font-semibold text-primary">
-                        ₹{ticketType.price}
+                        {formatINR(ticketType.price)}
                       </span>
                       <span>
                         {ticketType.available_quantity} available
