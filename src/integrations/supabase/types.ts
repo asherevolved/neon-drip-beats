@@ -14,13 +14,220 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      booking_items: {
+        Row: {
+          booking_id: string | null
+          id: string
+          quantity: number
+          subtotal: number
+          ticket_type_id: string | null
+          unit_price: number
+        }
+        Insert: {
+          booking_id?: string | null
+          id?: string
+          quantity: number
+          subtotal: number
+          ticket_type_id?: string | null
+          unit_price: number
+        }
+        Update: {
+          booking_id?: string | null
+          id?: string
+          quantity?: number
+          subtotal?: number
+          ticket_type_id?: string | null
+          unit_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "booking_items_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "booking_items_ticket_type_id_fkey"
+            columns: ["ticket_type_id"]
+            isOneToOne: false
+            referencedRelation: "ticket_types"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bookings: {
+        Row: {
+          booking_reference: string
+          created_at: string | null
+          customer_email: string
+          customer_instagram: string | null
+          customer_name: string
+          customer_phone: string
+          event_id: string | null
+          id: string
+          payment_screenshot_url: string | null
+          status: string
+          total_amount: number
+          updated_at: string | null
+        }
+        Insert: {
+          booking_reference: string
+          created_at?: string | null
+          customer_email: string
+          customer_instagram?: string | null
+          customer_name: string
+          customer_phone: string
+          event_id?: string | null
+          id?: string
+          payment_screenshot_url?: string | null
+          status?: string
+          total_amount: number
+          updated_at?: string | null
+        }
+        Update: {
+          booking_reference?: string
+          created_at?: string | null
+          customer_email?: string
+          customer_instagram?: string | null
+          customer_name?: string
+          customer_phone?: string
+          event_id?: string | null
+          id?: string
+          payment_screenshot_url?: string | null
+          status?: string
+          total_amount?: number
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bookings_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      events: {
+        Row: {
+          banner_image_url: string | null
+          category: string
+          city: string
+          created_at: string | null
+          created_by: string | null
+          date: string
+          description: string | null
+          gallery_images: string[] | null
+          id: string
+          time: string
+          title: string
+          updated_at: string | null
+          venue: string
+        }
+        Insert: {
+          banner_image_url?: string | null
+          category: string
+          city: string
+          created_at?: string | null
+          created_by?: string | null
+          date: string
+          description?: string | null
+          gallery_images?: string[] | null
+          id?: string
+          time: string
+          title: string
+          updated_at?: string | null
+          venue: string
+        }
+        Update: {
+          banner_image_url?: string | null
+          category?: string
+          city?: string
+          created_at?: string | null
+          created_by?: string | null
+          date?: string
+          description?: string | null
+          gallery_images?: string[] | null
+          id?: string
+          time?: string
+          title?: string
+          updated_at?: string | null
+          venue?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string | null
+          email: string
+          id: string
+          role: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          id: string
+          role?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          id?: string
+          role?: string | null
+        }
+        Relationships: []
+      }
+      ticket_types: {
+        Row: {
+          available_quantity: number | null
+          created_at: string | null
+          enabled: boolean | null
+          event_id: string | null
+          id: string
+          name: string
+          price: number
+          quantity: number | null
+        }
+        Insert: {
+          available_quantity?: number | null
+          created_at?: string | null
+          enabled?: boolean | null
+          event_id?: string | null
+          id?: string
+          name: string
+          price: number
+          quantity?: number | null
+        }
+        Update: {
+          available_quantity?: number | null
+          created_at?: string | null
+          enabled?: boolean | null
+          event_id?: string | null
+          id?: string
+          name?: string
+          price?: number
+          quantity?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ticket_types_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      generate_booking_reference: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never
