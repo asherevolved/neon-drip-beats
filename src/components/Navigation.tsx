@@ -43,7 +43,6 @@ const Navigation = () => {
             {[
               { label: 'EVENTS', id: 'events' },
               { label: 'GALLERY', id: 'gallery' },
-              { label: 'BOOK DJ', id: 'book' },
               { label: 'ABOUT', id: 'about' },
               { label: 'CONTACT', id: 'contact' }
             ].map((item) => (

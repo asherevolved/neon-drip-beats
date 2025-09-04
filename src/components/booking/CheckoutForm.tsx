@@ -79,7 +79,9 @@ export function CheckoutForm({ event, selectedTickets, onBack }: CheckoutFormPro
 
       if (uploadError) throw uploadError;
 
-      // Create booking (booking_reference is auto-generated)
+      // Create booking with auto-generated booking_reference
+      const bookingReference = `CE${Date.now()}${Math.random().toString(36).substr(2, 4).toUpperCase()}`;
+      
       const { data: booking, error: bookingError } = await supabase
         .from('bookings')
         .insert({
@@ -90,6 +92,7 @@ export function CheckoutForm({ event, selectedTickets, onBack }: CheckoutFormPro
           customer_instagram: formData.instagram || null,
           total_amount: getTotalAmount(),
           payment_screenshot_url: fileName,
+          booking_reference: bookingReference,
         })
         .select()
         .single();

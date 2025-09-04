@@ -9,7 +9,7 @@ function Root() {
 
 	return (
 		<>
-			{!ready && <Splash onFinish={() => setReady(true)} timeout={4500} />}
+			{!ready && <Splash onFinish={() => setReady(true)} />}
 			{ready && <App />}
 		</>
 	);
