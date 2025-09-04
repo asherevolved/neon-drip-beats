@@ -184,6 +184,7 @@ const Footer = () => {
           <div className="flex items-center space-x-6">
             <a href="#" className="hover:text-primary transition-colors font-inter">Privacy Policy</a>
             <a href="#" className="hover:text-primary transition-colors font-inter">Terms of Service</a>
+            <a href="/admin" className="hover:text-primary transition-colors font-inter text-xs opacity-50 hover:opacity-100">Admin</a>
             <div className="flex items-center space-x-2">
               <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
               <span className="font-bebas text-xs">POWERED BY NEON</span>
