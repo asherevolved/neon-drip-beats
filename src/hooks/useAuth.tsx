@@ -23,18 +23,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const { toast } = useToast();
 
   useEffect(() => {
-    console.log('useAuth: Setting up auth listener');
-    
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('Auth state change:', event, { user: !!session?.user, email: session?.user?.email });
-        
         setSession(session);
         setUser(session?.user ?? null);
         
         if (session?.user) {
-          console.log('Checking admin status for user:', session.user.email);
           // Check if user is admin
           try {
             const { data: profile, error } = await supabase
@@ -43,14 +38,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               .eq('id', session.user.id)
               .maybeSingle(); // Use maybeSingle instead of single to avoid errors
             
-            console.log('Profile query result:', { profile, error });
             setIsAdmin(profile?.role === 'admin');
           } catch (error) {
             console.error('Error checking admin status:', error);
             setIsAdmin(false);
           }
         } else {
-          console.log('No user session, setting isAdmin to false');
           setIsAdmin(false);
         }
         
@@ -59,10 +52,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     );
 
     // Get initial session
-    console.log('useAuth: Getting initial session');
     supabase.auth.getSession().then(async ({ data: { session } }) => {
-      console.log('Initial session:', { user: !!session?.user, email: session?.user?.email });
-      
       setSession(session);
       setUser(session?.user ?? null);
       
@@ -74,7 +64,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             .eq('id', session.user.id)
             .maybeSingle();
           
-          console.log('Initial profile check:', { profile, error });
           setIsAdmin(profile?.role === 'admin');
         } catch (error) {
           console.error('Error checking initial admin status:', error);
