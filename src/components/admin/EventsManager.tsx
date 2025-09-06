@@ -27,6 +27,7 @@ export function EventsManager() {
   const [loading, setLoading] = useState(true);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [filter, setFilter] = useState<'all' | 'upcoming' | 'past'>('all');
   const { toast } = useToast();
 
   useEffect(() => {
@@ -87,6 +88,11 @@ export function EventsManager() {
     setSelectedEvent(null);
   };
 
+  const filteredEvents = events.filter(event => {
+    if (filter === 'all') return true;
+    return event.category === filter;
+  });
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-8">
@@ -114,8 +120,32 @@ export function EventsManager() {
         </Button>
       </div>
 
+      <div className="flex gap-2">
+        <Button
+          variant={filter === 'all' ? 'default' : 'outline'}
+          size="sm"
+          onClick={() => setFilter('all')}
+        >
+          All ({events.length})
+        </Button>
+        <Button
+          variant={filter === 'upcoming' ? 'default' : 'outline'}
+          size="sm"
+          onClick={() => setFilter('upcoming')}
+        >
+          Upcoming ({events.filter(e => e.category === 'upcoming').length})
+        </Button>
+        <Button
+          variant={filter === 'past' ? 'default' : 'outline'}
+          size="sm"
+          onClick={() => setFilter('past')}
+        >
+          Past ({events.filter(e => e.category === 'past').length})
+        </Button>
+      </div>
+
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {events.map((event) => (
+        {filteredEvents.map((event) => (
           <Card key={event.id} className="bg-card/50 border-primary/20">
             <CardHeader>
               <div className="flex items-start justify-between">
@@ -129,7 +159,7 @@ export function EventsManager() {
                   variant={event.category === 'upcoming' ? 'default' : 'secondary'}
                   className={event.category === 'upcoming' ? 'bg-primary/20 text-primary' : ''}
                 >
-                  {event.category}
+                  {event.category === 'upcoming' ? 'Upcoming' : 'Past'}
                 </Badge>
               </div>
             </CardHeader>
@@ -171,6 +201,18 @@ export function EventsManager() {
           </Card>
         ))}
       </div>
+
+      {filteredEvents.length === 0 && events.length > 0 && (
+        <Card className="bg-card/50 border-primary/20">
+          <CardContent className="flex flex-col items-center justify-center py-12">
+            <Calendar className="h-12 w-12 text-muted-foreground mb-4" />
+            <h3 className="text-lg font-semibold mb-2">No {filter} events</h3>
+            <p className="text-muted-foreground text-center mb-4">
+              Try selecting a different filter or create a new event
+            </p>
+          </CardContent>
+        </Card>
+      )}
 
       {events.length === 0 && (
         <Card className="bg-card/50 border-primary/20">

@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
@@ -48,6 +49,7 @@ export function EventDialog({ event, isOpen, onClose, onSaved }: EventDialogProp
     starts_at: '',
     venue: '',
     city: '',
+    category: 'upcoming' as 'upcoming' | 'past',
   });
   const [ticketTypes, setTicketTypes] = useState<TicketType[]>([]);
   const [loading, setLoading] = useState(false);
@@ -66,6 +68,7 @@ export function EventDialog({ event, isOpen, onClose, onSaved }: EventDialogProp
         starts_at: event.starts_at,
         venue: event.venue,
         city: event.city,
+        category: event.category,
       });
       setBannerImage(event.banner_image_url || '');
       setGalleryImages(event.gallery_images || []);
@@ -78,6 +81,7 @@ export function EventDialog({ event, isOpen, onClose, onSaved }: EventDialogProp
         starts_at: '',
         venue: '',
         city: '',
+        category: 'upcoming',
       });
       setBannerImage('');
       setGalleryImages([]);
@@ -208,7 +212,6 @@ export function EventDialog({ event, isOpen, onClose, onSaved }: EventDialogProp
           ...formData,
           banner_image_url: bannerImage || null,
           gallery_images: galleryImages,
-          category: (new Date(formData.date) < new Date() ? 'past' : 'upcoming') as 'upcoming' | 'past'
         };
         
         const { data: newEvent, error } = await supabase
@@ -270,7 +273,7 @@ export function EventDialog({ event, isOpen, onClose, onSaved }: EventDialogProp
 
       toast({
         title: "Success",
-        description: `Event ${event ? 'updated' : 'created'} successfully`,
+        description: `Event saved to ${formData.category === 'upcoming' ? 'Upcoming' : 'Past'}`,
       });
 
       onSaved();
@@ -357,6 +360,23 @@ export function EventDialog({ event, isOpen, onClose, onSaved }: EventDialogProp
                 required
               />
             </div>
+          </div>
+
+          <div>
+            <Label htmlFor="category">Category</Label>
+            <Select 
+              value={formData.category} 
+              onValueChange={(value: 'upcoming' | 'past') => setFormData({ ...formData, category: value })}
+              required
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Choose Upcoming or Past" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="upcoming">Upcoming</SelectItem>
+                <SelectItem value="past">Past</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           {/* Banner Image */}
