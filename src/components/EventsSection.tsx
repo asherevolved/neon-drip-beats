@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import { Calendar, MapPin, Clock, Users } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { format } from 'date-fns';
-
 interface Event {
   id: string;
   title: string;
@@ -15,35 +14,30 @@ interface Event {
   category: 'upcoming' | 'past';
   banner_image_url?: string;
 }
-
 interface TicketType {
   id: string;
   price: number;
 }
-
 const EventsSection = () => {
   const [upcomingEvents, setUpcomingEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
-
   useEffect(() => {
     fetchUpcomingEvents();
   }, []);
-
   const fetchUpcomingEvents = async () => {
     try {
-      const { data: events, error } = await supabase
-        .from('events')
-        .select(`
+      const {
+        data: events,
+        error
+      } = await supabase.from('events').select(`
           *,
           ticket_types (
             id,
             price
           )
-        `)
-        .eq('category', 'upcoming')
-        .order('date', { ascending: true })
-        .limit(6);
-
+        `).eq('category', 'upcoming').order('date', {
+        ascending: true
+      }).limit(6);
       if (error) throw error;
       console.log('Fetched upcoming events:', events);
       setUpcomingEvents(events as any[] || []);
@@ -56,17 +50,14 @@ const EventsSection = () => {
 
   // Set up real-time subscription to refresh events when they change
   useEffect(() => {
-    const subscription = supabase
-      .channel('events-changes')
-      .on('postgres_changes', 
-        { event: '*', schema: 'public', table: 'events' },
-        () => {
-          console.log('Event data changed, refetching...');
-          fetchUpcomingEvents();
-        }
-      )
-      .subscribe();
-
+    const subscription = supabase.channel('events-changes').on('postgres_changes', {
+      event: '*',
+      schema: 'public',
+      table: 'events'
+    }, () => {
+      console.log('Event data changed, refetching...');
+      fetchUpcomingEvents();
+    }).subscribe();
     return () => {
       subscription.unsubscribe();
     };
@@ -92,23 +83,19 @@ const EventsSection = () => {
   const handleBuy = (id: string) => {
     navigate(`/book/${id}`);
   };
-
   const getLowestPrice = (ticketTypes: TicketType[]) => {
     if (!ticketTypes || ticketTypes.length === 0) return '₹0';
     const lowest = Math.min(...ticketTypes.map(t => t.price));
     return `₹${lowest}`;
   };
-
   if (loading) {
-    return (
-      <section id="events" className="py-20 relative">
+    return <section id="events" className="py-20 relative">
         <div className="container mx-auto px-6">
           <div className="text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
           </div>
         </div>
-      </section>
-    );
+      </section>;
   }
   return <section id="events" className="py-20 relative">
       <div className="container mx-auto px-6">
@@ -134,16 +121,21 @@ const EventsSection = () => {
         </motion.div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {upcomingEvents.map((event, index) => (
-            <motion.div 
-              key={event.id} 
-              initial={{ opacity: 0, y: 50 }} 
-              whileInView={{ opacity: 1, y: 0 }} 
-              viewport={{ once: true }} 
-              transition={{ duration: 0.6, delay: index * 0.2 }} 
-              whileHover={{ y: -10, scale: 1.02 }} 
-              className="glass-card p-6 group cursor-pointer"
-            >
+          {upcomingEvents.map((event, index) => <motion.div key={event.id} initial={{
+          opacity: 0,
+          y: 50
+        }} whileInView={{
+          opacity: 1,
+          y: 0
+        }} viewport={{
+          once: true
+        }} transition={{
+          duration: 0.6,
+          delay: index * 0.2
+        }} whileHover={{
+          y: -10,
+          scale: 1.02
+        }} className="glass-card p-6 group cursor-pointer">
               {/* Status Badge */}
               <div className="flex justify-between items-start mb-4">
                 <span className="px-3 py-1 rounded-full text-xs font-bebas border border-primary text-primary">
@@ -183,23 +175,19 @@ const EventsSection = () => {
               </div>
 
               {/* Buy Tickets Button */}
-              <motion.button 
-                whileHover={{ scale: 1.05 }} 
-                whileTap={{ scale: 0.95 }} 
-                className="w-full btn-neon group-hover:shadow-neon-lg transition-all duration-300" 
-                onClick={() => handleBuy(event.id)}
-              >
+              <motion.button whileHover={{
+            scale: 1.05
+          }} whileTap={{
+            scale: 0.95
+          }} className="w-full btn-neon group-hover:shadow-neon-lg transition-all duration-300" onClick={() => handleBuy(event.id)}>
                 BUY TICKETS
               </motion.button>
-            </motion.div>
-          ))}
+            </motion.div>)}
         </div>
 
-        {upcomingEvents.length === 0 && (
-          <div className="text-center text-muted-gray">
+        {upcomingEvents.length === 0 && <div className="text-center text-muted-gray">
             <p>No upcoming events at the moment.</p>
-          </div>
-        )}
+          </div>}
 
         {/* All Events Link */}
         <motion.div initial={{
@@ -212,13 +200,7 @@ const EventsSection = () => {
         duration: 0.6,
         delay: 0.8
       }} className="text-center mt-12">
-          <motion.button whileHover={{
-          scale: 1.05
-        }} whileTap={{
-          scale: 0.95
-        }} className="btn-red" onClick={() => navigate('/events')}>
-            VIEW ALL EVENTS
-          </motion.button>
+          
         </motion.div>
       </div>
     </section>;
