@@ -1,18 +1,40 @@
+import { useState } from 'react';
 import { EventsManager } from './EventsManager';
-import { Calendar } from 'lucide-react';
+import { PostsManager } from './PostsManager';
+import { Button } from '@/components/ui/button';
+import { Calendar, FileText } from 'lucide-react';
+
+type Tab = 'events' | 'posts';
 
 export function AdminTabs() {
+  const [activeTab, setActiveTab] = useState<Tab>('events');
+
   return (
     <div className="w-full">
       <div className="space-y-6">
-        <div className="mb-6">
-          <div className="flex items-center gap-2 text-2xl font-bold">
-            <Calendar className="h-6 w-6" />
-            Events Management
-          </div>
-          <p className="text-muted-foreground mt-2">Create and manage your events</p>
+        {/* Tab Navigation */}
+        <div className="flex gap-2 border-b border-primary/20">
+          <Button
+            variant={activeTab === 'events' ? 'default' : 'ghost'}
+            onClick={() => setActiveTab('events')}
+            className="rounded-b-none"
+          >
+            <Calendar className="h-4 w-4 mr-2" />
+            Events
+          </Button>
+          <Button
+            variant={activeTab === 'posts' ? 'default' : 'ghost'}
+            onClick={() => setActiveTab('posts')}
+            className="rounded-b-none"
+          >
+            <FileText className="h-4 w-4 mr-2" />
+            Posts
+          </Button>
         </div>
-        <EventsManager />
+
+        {/* Tab Content */}
+        {activeTab === 'events' && <EventsManager />}
+        {activeTab === 'posts' && <PostsManager />}
       </div>
     </div>
   );

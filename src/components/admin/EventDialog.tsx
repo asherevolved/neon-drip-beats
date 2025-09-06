@@ -208,8 +208,15 @@ export function EventDialog({ event, isOpen, onClose, onSaved }: EventDialogProp
         if (error) throw error;
       } else {
         // Create new event
+        // Auto-set category based on date
+        const eventDate = new Date(formData.date);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const category: 'upcoming' | 'past' = eventDate >= today ? 'upcoming' : 'past';
+        
         const eventData = {
           ...formData,
+          category,
           banner_image_url: bannerImage || null,
           gallery_images: galleryImages,
         };

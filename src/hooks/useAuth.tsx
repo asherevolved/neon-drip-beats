@@ -144,6 +144,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       title: "Success",
       description: "Signed out successfully",
     });
+    // Redirect to home page after sign out
+    window.location.href = '/';
   };
 
   return (
