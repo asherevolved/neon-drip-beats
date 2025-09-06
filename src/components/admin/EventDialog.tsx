@@ -7,7 +7,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
-import { Loader2, Plus, Trash2, Upload, X } from 'lucide-react';
+import { ImageUploader } from './ImageUploader';
+import { Plus, Minus, Trash2, Loader2 } from 'lucide-react';
+import { format } from 'date-fns';
 
 interface Event {
   id: string;
@@ -357,78 +359,29 @@ export function EventDialog({ event, isOpen, onClose, onSaved }: EventDialogProp
             </div>
           </div>
 
-          {/* Image Upload Section */}
-          <div className="space-y-4">
-            <Label className="text-base font-semibold">Event Images</Label>
-            
-            {/* Banner Image */}
-            <div className="space-y-2">
-              <Label>Banner Image</Label>
-              <div className="flex items-center gap-4">
-                <div className="flex-1">
-                  <Input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleBannerUpload}
-                    disabled={uploadingImages}
-                  />
-                </div>
-                {uploadingImages && <Loader2 className="h-4 w-4 animate-spin" />}
-              </div>
-              {bannerImage && (
-                <div className="relative inline-block">
-                  <img 
-                    src={bannerImage} 
-                    alt="Banner preview" 
-                    className="h-20 w-32 object-cover rounded border"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setBannerImage('')}
-                    className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full p-1 hover:bg-destructive/80"
-                  >
-                    <X className="h-3 w-3" />
-                  </button>
-                </div>
-              )}
-            </div>
+          {/* Banner Image */}
+          <div className="space-y-2">
+            <Label>Banner Image</Label>
+            <ImageUploader
+              bucketName="event-images"
+              allowMultiple={false}
+              value={bannerImage}
+              onChange={(value) => setBannerImage(value as string)}
+              placeholder="Upload event banner image"
+            />
+          </div>
 
-            {/* Gallery Images */}
-            <div className="space-y-2">
-              <Label>Gallery Images</Label>
-              <div className="flex items-center gap-4">
-                <div className="flex-1">
-                  <Input
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    onChange={handleGalleryUpload}
-                    disabled={uploadingImages}
-                  />
-                </div>
-                {uploadingImages && <Loader2 className="h-4 w-4 animate-spin" />}
-              </div>
-              {galleryImages.length > 0 && (
-                <div className="flex flex-wrap gap-2">
-                  {galleryImages.map((image, index) => (
-                    <div key={index} className="relative">
-                      <img 
-                        src={image} 
-                        alt={`Gallery ${index + 1}`} 
-                        className="h-20 w-20 object-cover rounded border"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => removeGalleryImage(index)}
-                        className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full p-1 hover:bg-destructive/80"
-                      >
-                        <X className="h-3 w-3" />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+          {/* Gallery Images */}
+          <div className="space-y-2">
+            <Label>Gallery Images</Label>
+            <ImageUploader
+              bucketName="event-images"
+              allowMultiple={true}
+              allowReorder={true}
+              value={galleryImages}
+              onChange={(value) => setGalleryImages(value as string[])}
+              placeholder="Upload multiple gallery images"
+            />
           </div>
 
           <div className="space-y-4">

@@ -4,48 +4,48 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { EventDialog } from './EventDialog';
+import { PostDialog } from './PostDialog';
 import { ConfirmDialog } from './ConfirmDialog';
-import { Plus, Calendar, MapPin, Edit, Trash2 } from 'lucide-react';
+import { Plus, Edit, Trash2, Calendar, FileText } from 'lucide-react';
 import { format } from 'date-fns';
 
-interface Event {
+interface Post {
   id: string;
   title: string;
-  description: string;
-  date: string;
-  starts_at: string;
-  venue: string;
-  city: string;
-  category: 'upcoming' | 'past';
-  banner_image_url?: string;
+  slug: string;
+  feature_image_url?: string;
+  body: string;
+  tags: string[];
+  published_on: string;
   created_at: string;
+  updated_at: string;
 }
 
-export function EventsManager() {
-  const [events, setEvents] = useState<Event[]>([]);
+export function PostsManager() {
+  const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const [selectedPost, setSelectedPost] = useState<Post | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [deletePost, setDeletePost] = useState<Post | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
-    fetchEvents();
+    fetchPosts();
   }, []);
 
-  const fetchEvents = async () => {
+  const fetchPosts = async () => {
     try {
       const { data, error } = await supabase
-        .from('events')
+        .from('posts')
         .select('*')
-        .order('date', { ascending: false });
+        .order('published_on', { ascending: false });
 
       if (error) throw error;
-      setEvents((data || []) as Event[]);
+      setPosts((data || []) as Post[]);
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to fetch events",
+        description: "Failed to fetch posts",
         variant: "destructive",
       });
     } finally {
@@ -53,38 +53,40 @@ export function EventsManager() {
     }
   };
 
-  const [deleteEvent, setDeleteEvent] = useState<Event | null>(null);
-
-  const handleDeleteEvent = async () => {
-    if (!deleteEvent) return;
+  const handleDeletePost = async () => {
+    if (!deletePost) return;
 
     try {
       const { error } = await supabase
-        .from('events')
+        .from('posts')
         .delete()
-        .eq('id', deleteEvent.id);
+        .eq('id', deletePost.id);
 
       if (error) throw error;
 
       toast({
         title: "Success",
-        description: "Event deleted successfully",
+        description: "Post deleted successfully",
       });
       
-      fetchEvents();
+      fetchPosts();
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to delete event",
+        description: "Failed to delete post",
         variant: "destructive",
       });
     }
   };
 
-  const handleEventSaved = () => {
-    fetchEvents();
+  const handlePostSaved = () => {
+    fetchPosts();
     setIsDialogOpen(false);
-    setSelectedEvent(null);
+    setSelectedPost(null);
+  };
+
+  const truncateText = (text: string, maxLength: number) => {
+    return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
   };
 
   if (loading) {
@@ -99,50 +101,73 @@ export function EventsManager() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold">Events Management</h2>
-          <p className="text-muted-foreground">Manage your events and tickets</p>
+          <h2 className="text-2xl font-bold">Posts Management</h2>
+          <p className="text-muted-foreground">Manage your blog posts and news updates</p>
         </div>
         <Button
           onClick={() => {
-            setSelectedEvent(null);
+            setSelectedPost(null);
             setIsDialogOpen(true);
           }}
           className="bg-primary hover:bg-primary/90"
         >
           <Plus className="h-4 w-4 mr-2" />
-          Add Event
+          Add Post
         </Button>
       </div>
 
+      {/* Posts Grid */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {events.map((event) => (
-          <Card key={event.id} className="bg-card/50 border-primary/20">
+        {posts.map((post) => (
+          <Card key={post.id} className="bg-card/50 border-primary/20">
             <CardHeader>
               <div className="flex items-start justify-between">
-                <div className="space-y-1">
-                  <CardTitle className="text-lg">{event.title}</CardTitle>
+                <div className="space-y-1 flex-1">
+                  <CardTitle className="text-lg line-clamp-2">{post.title}</CardTitle>
                   <CardDescription className="line-clamp-2">
-                    {event.description}
+                    {truncateText(post.body.replace(/<[^>]*>/g, ''), 100)}
                   </CardDescription>
                 </div>
-                <Badge 
-                  variant={event.category === 'upcoming' ? 'default' : 'secondary'}
-                  className={event.category === 'upcoming' ? 'bg-primary/20 text-primary' : ''}
-                >
-                  {event.category}
-                </Badge>
               </div>
             </CardHeader>
-            <CardContent className="space-y-4">
+            
+            {post.feature_image_url && (
+              <div className="px-6">
+                <div className="aspect-video rounded-lg overflow-hidden bg-muted">
+                  <img
+                    src={post.feature_image_url}
+                    alt={post.title}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              </div>
+            )}
+            
+            <CardContent className="space-y-4 pt-4">
               <div className="space-y-2 text-sm">
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <Calendar className="h-4 w-4" />
-                  {format(new Date(event.date), 'PPP')} at {format(new Date(event.starts_at), 'p')}
+                  Published {format(new Date(post.published_on), 'PPP')}
                 </div>
-                <div className="flex items-center gap-2 text-muted-foreground">
-                  <MapPin className="h-4 w-4" />
-                  {event.venue}, {event.city}
-                </div>
+                
+                {post.tags.length > 0 && (
+                  <div className="flex flex-wrap gap-1">
+                    {post.tags.slice(0, 3).map((tag, index) => (
+                      <Badge
+                        key={index}
+                        variant="secondary"
+                        className="text-xs bg-primary/20 text-primary"
+                      >
+                        {tag}
+                      </Badge>
+                    ))}
+                    {post.tags.length > 3 && (
+                      <Badge variant="secondary" className="text-xs">
+                        +{post.tags.length - 3}
+                      </Badge>
+                    )}
+                  </div>
+                )}
               </div>
               
               <div className="flex gap-2">
@@ -150,7 +175,7 @@ export function EventsManager() {
                   variant="outline"
                   size="sm"
                   onClick={() => {
-                    setSelectedEvent(event);
+                    setSelectedPost(post);
                     setIsDialogOpen(true);
                   }}
                   className="flex-1 border-primary/20 hover:bg-primary/10"
@@ -161,7 +186,7 @@ export function EventsManager() {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setDeleteEvent(event)}
+                  onClick={() => setDeletePost(post)}
                   className="border-destructive/20 hover:bg-destructive/10 text-destructive"
                 >
                   <Trash2 className="h-4 w-4" />
@@ -172,43 +197,43 @@ export function EventsManager() {
         ))}
       </div>
 
-      {events.length === 0 && (
+      {posts.length === 0 && (
         <Card className="bg-card/50 border-primary/20">
           <CardContent className="flex flex-col items-center justify-center py-12">
-            <Calendar className="h-12 w-12 text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold mb-2">No events yet</h3>
+            <FileText className="h-12 w-12 text-muted-foreground mb-4" />
+            <h3 className="text-lg font-semibold mb-2">No posts yet</h3>
             <p className="text-muted-foreground text-center mb-4">
-              Create your first event to get started with bookings
+              Create your first post to start sharing news and updates
             </p>
             <Button
               onClick={() => {
-                setSelectedEvent(null);
+                setSelectedPost(null);
                 setIsDialogOpen(true);
               }}
             >
               <Plus className="h-4 w-4 mr-2" />
-              Add Your First Event
+              Add Your First Post
             </Button>
           </CardContent>
         </Card>
       )}
 
-      <EventDialog
-        event={selectedEvent}
+      <PostDialog
+        post={selectedPost}
         isOpen={isDialogOpen}
         onClose={() => {
           setIsDialogOpen(false);
-          setSelectedEvent(null);
+          setSelectedPost(null);
         }}
-        onSaved={handleEventSaved}
+        onSaved={handlePostSaved}
       />
 
       <ConfirmDialog
-        isOpen={!!deleteEvent}
-        onClose={() => setDeleteEvent(null)}
-        onConfirm={handleDeleteEvent}
-        title="Delete Event"
-        description="This will remove the event from listings. Continue?"
+        isOpen={!!deletePost}
+        onClose={() => setDeletePost(null)}
+        onConfirm={handleDeletePost}
+        title="Delete Post"
+        description="This will permanently remove the post from all listings. This action cannot be undone."
         confirmText="Delete"
         cancelText="Cancel"
       />
