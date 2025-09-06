@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, Navigate } from 'react-router-dom';
+import { useParams, Navigate, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -43,6 +43,7 @@ interface SelectedTicket {
 
 export default function EventBooking() {
   const { eventId } = useParams<{ eventId: string }>();
+  const navigate = useNavigate();
   const [event, setEvent] = useState<Event | null>(null);
   const [ticketTypes, setTicketTypes] = useState<TicketType[]>([]);
   const [selectedTickets, setSelectedTickets] = useState<SelectedTicket[]>([]);
@@ -95,6 +96,19 @@ export default function EventBooking() {
 
   const getTotalQuantity = () => {
     return selectedTickets.reduce((total, ticket) => total + ticket.quantity, 0);
+  };
+
+  const handleBuyTickets = () => {
+    if (selectedTickets.length === 0) return;
+    
+    const items = selectedTickets.map(ticket => ({
+      tierId: ticket.ticketTypeId,
+      name: ticket.name,
+      price: ticket.price,
+      qty: ticket.quantity
+    }));
+
+    navigate(`/checkout?eventId=${eventId}&eventTitle=${encodeURIComponent(event?.title || '')}&items=${encodeURIComponent(JSON.stringify(items))}`);
   };
 
   if (loading) {
@@ -199,20 +213,12 @@ export default function EventBooking() {
               transition={{ duration: 0.5, delay: 0.1 }}
               className="mt-8"
             >
-              {currentStep === 'select' ? (
-                <TicketSelector
-                  ticketTypes={ticketTypes}
-                  selectedTickets={selectedTickets}
-                  onTicketChange={setSelectedTickets}
-                  onContinue={() => setCurrentStep('checkout')}
-                />
-              ) : (
-                <CheckoutForm
-                  event={event}
-                  selectedTickets={selectedTickets}
-                  onBack={() => setCurrentStep('select')}
-                />
-              )}
+              <TicketSelector
+                ticketTypes={ticketTypes}
+                selectedTickets={selectedTickets}
+                onTicketChange={setSelectedTickets}
+                onContinue={handleBuyTickets}
+              />
             </motion.div>
           </div>
 

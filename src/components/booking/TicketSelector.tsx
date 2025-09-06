@@ -156,7 +156,7 @@ export function TicketSelector({ ticketTypes, selectedTickets, onTicketChange, o
         {getTotalTickets() > 0 && (
           <div className="flex justify-end pt-4 border-t border-primary/20">
             <Button onClick={onContinue} className="bg-primary hover:bg-primary/90">
-              Continue to Checkout ({getTotalTickets()} ticket{getTotalTickets() !== 1 ? 's' : ''})
+              Buy Tickets ({getTotalTickets()} ticket{getTotalTickets() !== 1 ? 's' : ''})
             </Button>
           </div>
         )}
