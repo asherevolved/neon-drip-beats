@@ -42,9 +42,10 @@ const EventsSection = () => {
         `)
         .eq('category', 'upcoming')
         .order('date', { ascending: true })
-        .limit(3);
+        .limit(6);
 
       if (error) throw error;
+      console.log('Fetched upcoming events:', events);
       setUpcomingEvents(events as any[] || []);
     } catch (error) {
       console.error('Error fetching events:', error);
@@ -52,6 +53,24 @@ const EventsSection = () => {
       setLoading(false);
     }
   };
+
+  // Set up real-time subscription to refresh events when they change
+  useEffect(() => {
+    const subscription = supabase
+      .channel('events-changes')
+      .on('postgres_changes', 
+        { event: '*', schema: 'public', table: 'events' },
+        () => {
+          console.log('Event data changed, refetching...');
+          fetchUpcomingEvents();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
   const getStatusBadge = (status: string) => {
     const badges = {
       'tickets-available': {
