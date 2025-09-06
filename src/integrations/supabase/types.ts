@@ -16,27 +16,27 @@ export type Database = {
     Tables: {
       booking_items: {
         Row: {
-          booking_id: string | null
+          booking_id: string
           id: string
           quantity: number
-          subtotal: number
-          ticket_type_id: string | null
+          subtotal: number | null
+          ticket_type_id: string
           unit_price: number
         }
         Insert: {
-          booking_id?: string | null
+          booking_id: string
           id?: string
           quantity: number
-          subtotal: number
-          ticket_type_id?: string | null
+          subtotal?: number | null
+          ticket_type_id: string
           unit_price: number
         }
         Update: {
-          booking_id?: string | null
+          booking_id?: string
           id?: string
           quantity?: number
-          subtotal?: number
-          ticket_type_id?: string | null
+          subtotal?: number | null
+          ticket_type_id?: string
           unit_price?: number
         }
         Relationships: [
@@ -59,45 +59,45 @@ export type Database = {
       bookings: {
         Row: {
           booking_reference: string
-          created_at: string | null
+          created_at: string
           customer_email: string
           customer_instagram: string | null
           customer_name: string
           customer_phone: string
-          event_id: string | null
+          event_id: string
           id: string
           payment_screenshot_url: string | null
-          status: string
+          status: Database["public"]["Enums"]["booking_status"]
           total_amount: number
-          updated_at: string | null
+          updated_at: string
         }
         Insert: {
-          booking_reference: string
-          created_at?: string | null
+          booking_reference?: string
+          created_at?: string
           customer_email: string
           customer_instagram?: string | null
           customer_name: string
           customer_phone: string
-          event_id?: string | null
+          event_id: string
           id?: string
           payment_screenshot_url?: string | null
-          status?: string
+          status?: Database["public"]["Enums"]["booking_status"]
           total_amount: number
-          updated_at?: string | null
+          updated_at?: string
         }
         Update: {
           booking_reference?: string
-          created_at?: string | null
+          created_at?: string
           customer_email?: string
           customer_instagram?: string | null
           customer_name?: string
           customer_phone?: string
-          event_id?: string | null
+          event_id?: string
           id?: string
           payment_screenshot_url?: string | null
-          status?: string
+          status?: Database["public"]["Enums"]["booking_status"]
           total_amount?: number
-          updated_at?: string | null
+          updated_at?: string
         }
         Relationships: [
           {
@@ -112,102 +112,111 @@ export type Database = {
       events: {
         Row: {
           banner_image_url: string | null
-          category: string
+          category: Database["public"]["Enums"]["event_category"]
           city: string
-          created_at: string | null
+          created_at: string
           created_by: string | null
           date: string
           description: string | null
-          gallery_images: string[] | null
+          ends_at: string | null
+          gallery_images: string[]
           id: string
-          time: string
+          starts_at: string
           title: string
-          updated_at: string | null
+          updated_at: string
           venue: string
         }
         Insert: {
           banner_image_url?: string | null
-          category: string
+          category?: Database["public"]["Enums"]["event_category"]
           city: string
-          created_at?: string | null
+          created_at?: string
           created_by?: string | null
-          date: string
+          date?: string
           description?: string | null
-          gallery_images?: string[] | null
+          ends_at?: string | null
+          gallery_images?: string[]
           id?: string
-          time: string
+          starts_at: string
           title: string
-          updated_at?: string | null
+          updated_at?: string
           venue: string
         }
         Update: {
           banner_image_url?: string | null
-          category?: string
+          category?: Database["public"]["Enums"]["event_category"]
           city?: string
-          created_at?: string | null
+          created_at?: string
           created_by?: string | null
           date?: string
           description?: string | null
-          gallery_images?: string[] | null
+          ends_at?: string | null
+          gallery_images?: string[]
           id?: string
-          time?: string
+          starts_at?: string
           title?: string
-          updated_at?: string | null
+          updated_at?: string
           venue?: string
         }
         Relationships: []
       }
       profiles: {
         Row: {
-          created_at: string | null
+          created_at: string
           email: string
+          full_name: string | null
           id: string
-          role: string | null
+          role: string
+          updated_at: string
         }
         Insert: {
-          created_at?: string | null
+          created_at?: string
           email: string
+          full_name?: string | null
           id: string
-          role?: string | null
+          role?: string
+          updated_at?: string
         }
         Update: {
-          created_at?: string | null
+          created_at?: string
           email?: string
+          full_name?: string | null
           id?: string
-          role?: string | null
+          role?: string
+          updated_at?: string
         }
         Relationships: []
       }
       ticket_types: {
         Row: {
-          available_quantity: number | null
-          created_at: string | null
-          enabled: boolean | null
-          event_id: string | null
+          capacity: number
+          created_at: string
+          enabled: boolean
+          event_id: string
           id: string
           name: string
           price: number
-          quantity: number | null
+          sold: number
         }
         Insert: {
-          available_quantity?: number | null
-          created_at?: string | null
-          enabled?: boolean | null
-          event_id?: string | null
+          capacity?: number
+          created_at?: string
+          enabled?: boolean
+          event_id: string
           id?: string
           name: string
           price: number
-          quantity?: number | null
+          sold?: number
         }
         Update: {
-          available_quantity?: number | null
-          created_at?: string | null
-          enabled?: boolean | null
-          event_id?: string | null
+          capacity?: number
+          created_at?: string
+          enabled?: boolean
+          event_id?: string
           id?: string
           name?: string
           price?: number
-          quantity?: number | null
+          sold?: number
         }
         Relationships: [
           {
@@ -234,7 +243,9 @@ export type Database = {
       }
     }
     Enums: {
-      [_ in never]: never
+      booking_status: "pending" | "confirmed" | "declined"
+      event_category: "upcoming" | "past"
+      user_role: "admin" | "staff" | "viewer"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -361,6 +372,10 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      booking_status: ["pending", "confirmed", "declined"],
+      event_category: ["upcoming", "past"],
+      user_role: ["admin", "staff", "viewer"],
+    },
   },
 } as const

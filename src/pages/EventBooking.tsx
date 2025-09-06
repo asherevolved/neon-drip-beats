@@ -18,7 +18,7 @@ interface Event {
   title: string;
   description: string;
   date: string;
-  time: string;
+  starts_at: string;
   venue: string;
   city: string;
   category: 'upcoming' | 'past';
@@ -29,7 +29,8 @@ interface TicketType {
   id: string;
   name: string;
   price: number;
-  available_quantity: number;
+  capacity: number;
+  sold: number;
   enabled: boolean;
 }
 
@@ -174,7 +175,7 @@ export default function EventBooking() {
                       <Clock className="h-5 w-5 text-primary" />
                       <div>
                         <p className="font-medium">Time</p>
-                        <p className="text-sm text-muted-foreground">{event.time}</p>
+                        <p className="text-sm text-muted-foreground">{format(new Date(event.starts_at), 'p')}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">

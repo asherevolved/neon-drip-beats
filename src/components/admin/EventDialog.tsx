@@ -7,26 +7,27 @@ import { Textarea } from '@/components/ui/textarea';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
-import { Loader2, Plus, Trash2 } from 'lucide-react';
+import { Loader2, Plus, Trash2, Upload, X } from 'lucide-react';
 
 interface Event {
   id: string;
   title: string;
   description: string;
   date: string;
-  time: string;
+  starts_at: string;
   venue: string;
   city: string;
   category: 'upcoming' | 'past';
   banner_image_url?: string;
+  gallery_images?: string[];
 }
 
 interface TicketType {
   id?: string;
   name: string;
   price: number;
-  quantity: number;
-  available_quantity: number;
+  capacity: number;
+  sold: number;
   enabled: boolean;
 }
 
@@ -42,12 +43,15 @@ export function EventDialog({ event, isOpen, onClose, onSaved }: EventDialogProp
     title: '',
     description: '',
     date: '',
-    time: '',
+    starts_at: '',
     venue: '',
     city: '',
   });
   const [ticketTypes, setTicketTypes] = useState<TicketType[]>([]);
   const [loading, setLoading] = useState(false);
+  const [uploadingImages, setUploadingImages] = useState(false);
+  const [galleryImages, setGalleryImages] = useState<string[]>([]);
+  const [bannerImage, setBannerImage] = useState<string>('');
   const { user } = useAuth();
   const { toast } = useToast();
 
@@ -57,20 +61,24 @@ export function EventDialog({ event, isOpen, onClose, onSaved }: EventDialogProp
         title: event.title,
         description: event.description,
         date: event.date,
-        time: event.time,
+        starts_at: event.starts_at,
         venue: event.venue,
         city: event.city,
       });
+      setBannerImage(event.banner_image_url || '');
+      setGalleryImages(event.gallery_images || []);
       fetchTicketTypes();
     } else {
       setFormData({
         title: '',
         description: '',
         date: '',
-        time: '',
+        starts_at: '',
         venue: '',
         city: '',
       });
+      setBannerImage('');
+      setGalleryImages([]);
       setTicketTypes([]);
     }
   }, [event]);
@@ -98,8 +106,8 @@ export function EventDialog({ event, isOpen, onClose, onSaved }: EventDialogProp
       {
         name: '',
         price: 0,
-        quantity: 100,
-        available_quantity: 100,
+        capacity: 100,
+        sold: 0,
         enabled: true,
       },
     ]);
@@ -108,17 +116,67 @@ export function EventDialog({ event, isOpen, onClose, onSaved }: EventDialogProp
   const updateTicketType = (index: number, field: keyof TicketType, value: any) => {
     const updated = [...ticketTypes];
     updated[index] = { ...updated[index], [field]: value };
-    
-    // Update available_quantity when quantity changes for new tickets
-    if (field === 'quantity' && !updated[index].id) {
-      updated[index].available_quantity = value;
-    }
-    
     setTicketTypes(updated);
   };
 
   const removeTicketType = (index: number) => {
     setTicketTypes(ticketTypes.filter((_, i) => i !== index));
+  };
+
+  const uploadImage = async (file: File, type: 'banner' | 'gallery') => {
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+      const filePath = `${type}/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('event-images')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data } = supabase.storage
+        .from('event-images')
+        .getPublicUrl(filePath);
+
+      return data.publicUrl;
+    } catch (error) {
+      toast({
+        title: "Upload Error",
+        description: "Failed to upload image",
+        variant: "destructive",
+      });
+      return null;
+    }
+  };
+
+  const handleBannerUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingImages(true);
+    const url = await uploadImage(file, 'banner');
+    if (url) {
+      setBannerImage(url);
+    }
+    setUploadingImages(false);
+  };
+
+  const handleGalleryUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+
+    setUploadingImages(true);
+    const uploadPromises = files.map(file => uploadImage(file, 'gallery'));
+    const urls = await Promise.all(uploadPromises);
+    const validUrls = urls.filter(url => url !== null) as string[];
+    
+    setGalleryImages(prev => [...prev, ...validUrls]);
+    setUploadingImages(false);
+  };
+
+  const removeGalleryImage = (index: number) => {
+    setGalleryImages(prev => prev.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -135,6 +193,8 @@ export function EventDialog({ event, isOpen, onClose, onSaved }: EventDialogProp
           .from('events')
           .update({
             ...formData,
+            banner_image_url: bannerImage || null,
+            gallery_images: galleryImages,
             updated_at: new Date().toISOString(),
           })
           .eq('id', event.id);
@@ -144,7 +204,9 @@ export function EventDialog({ event, isOpen, onClose, onSaved }: EventDialogProp
         // Create new event
         const eventData = {
           ...formData,
-          category: new Date(formData.date) < new Date() ? 'past' : 'upcoming'
+          banner_image_url: bannerImage || null,
+          gallery_images: galleryImages,
+          category: (new Date(formData.date) < new Date() ? 'past' : 'upcoming') as 'upcoming' | 'past'
         };
         
         const { data: newEvent, error } = await supabase
@@ -180,7 +242,7 @@ export function EventDialog({ event, isOpen, onClose, onSaved }: EventDialogProp
               .update({
                 name: ticket.name,
                 price: ticket.price,
-                quantity: ticket.quantity,
+                capacity: ticket.capacity,
                 enabled: ticket.enabled,
               })
               .eq('id', ticket.id);
@@ -194,8 +256,8 @@ export function EventDialog({ event, isOpen, onClose, onSaved }: EventDialogProp
                 event_id: eventId,
                 name: ticket.name,
                 price: ticket.price,
-                quantity: ticket.quantity,
-                available_quantity: ticket.available_quantity,
+                capacity: ticket.capacity,
+                sold: ticket.sold,
                 enabled: ticket.enabled,
               });
 
@@ -275,12 +337,12 @@ export function EventDialog({ event, isOpen, onClose, onSaved }: EventDialogProp
               />
             </div>
             <div>
-              <Label htmlFor="time">Time</Label>
+              <Label htmlFor="starts_at">Start Time</Label>
               <Input
-                id="time"
-                type="time"
-                value={formData.time}
-                onChange={(e) => setFormData({ ...formData, time: e.target.value })}
+                id="starts_at"
+                type="datetime-local"
+                value={formData.starts_at}
+                onChange={(e) => setFormData({ ...formData, starts_at: e.target.value })}
                 required
               />
             </div>
@@ -292,6 +354,80 @@ export function EventDialog({ event, isOpen, onClose, onSaved }: EventDialogProp
                 onChange={(e) => setFormData({ ...formData, venue: e.target.value })}
                 required
               />
+            </div>
+          </div>
+
+          {/* Image Upload Section */}
+          <div className="space-y-4">
+            <Label className="text-base font-semibold">Event Images</Label>
+            
+            {/* Banner Image */}
+            <div className="space-y-2">
+              <Label>Banner Image</Label>
+              <div className="flex items-center gap-4">
+                <div className="flex-1">
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleBannerUpload}
+                    disabled={uploadingImages}
+                  />
+                </div>
+                {uploadingImages && <Loader2 className="h-4 w-4 animate-spin" />}
+              </div>
+              {bannerImage && (
+                <div className="relative inline-block">
+                  <img 
+                    src={bannerImage} 
+                    alt="Banner preview" 
+                    className="h-20 w-32 object-cover rounded border"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setBannerImage('')}
+                    className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full p-1 hover:bg-destructive/80"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Gallery Images */}
+            <div className="space-y-2">
+              <Label>Gallery Images</Label>
+              <div className="flex items-center gap-4">
+                <div className="flex-1">
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={handleGalleryUpload}
+                    disabled={uploadingImages}
+                  />
+                </div>
+                {uploadingImages && <Loader2 className="h-4 w-4 animate-spin" />}
+              </div>
+              {galleryImages.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {galleryImages.map((image, index) => (
+                    <div key={index} className="relative">
+                      <img 
+                        src={image} 
+                        alt={`Gallery ${index + 1}`} 
+                        className="h-20 w-20 object-cover rounded border"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeGalleryImage(index)}
+                        className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full p-1 hover:bg-destructive/80"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 
@@ -327,18 +463,18 @@ export function EventDialog({ event, isOpen, onClose, onSaved }: EventDialogProp
                     type="number"
                     min="0"
                     step="0.01"
-                    value={ticket.price}
-                    onChange={(e) => updateTicketType(index, 'price', parseFloat(e.target.value) || 0)}
+                    value={ticket.price || ''}
+                    onChange={(e) => updateTicketType(index, 'price', e.target.value ? parseFloat(e.target.value) : 0)}
                     required
                   />
                 </div>
                 <div>
-                  <Label>Total Quantity</Label>
+                  <Label>Total Capacity</Label>
                   <Input
                     type="number"
                     min="1"
-                    value={ticket.quantity}
-                    onChange={(e) => updateTicketType(index, 'quantity', parseInt(e.target.value) || 1)}
+                    value={ticket.capacity || ''}
+                    onChange={(e) => updateTicketType(index, 'capacity', e.target.value ? parseInt(e.target.value) : 0)}
                     required
                   />
                 </div>

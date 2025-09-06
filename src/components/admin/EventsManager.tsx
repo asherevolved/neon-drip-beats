@@ -13,7 +13,7 @@ interface Event {
   title: string;
   description: string;
   date: string;
-  time: string;
+  starts_at: string;
   venue: string;
   city: string;
   category: 'upcoming' | 'past';
@@ -134,7 +134,7 @@ export function EventsManager() {
               <div className="space-y-2 text-sm">
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <Calendar className="h-4 w-4" />
-                  {format(new Date(event.date), 'PPP')} at {event.time}
+                  {format(new Date(event.date), 'PPP')} at {format(new Date(event.starts_at), 'p')}
                 </div>
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <MapPin className="h-4 w-4" />

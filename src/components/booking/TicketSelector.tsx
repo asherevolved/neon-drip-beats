@@ -9,7 +9,8 @@ interface TicketType {
   id: string;
   name: string;
   price: number;
-  available_quantity: number;
+  capacity: number;
+  sold: number;
   enabled: boolean;
 }
 
@@ -90,7 +91,7 @@ export function TicketSelector({ ticketTypes, selectedTickets, onTicketChange, o
         <div className="space-y-4">
           {ticketTypes.map((ticketType) => {
             const quantity = getTicketQuantity(ticketType.id);
-            const isAvailable = ticketType.available_quantity > 0;
+            const isAvailable = (ticketType.capacity - ticketType.sold) > 0;
             
             return (
               <div 
@@ -114,7 +115,7 @@ export function TicketSelector({ ticketTypes, selectedTickets, onTicketChange, o
                         {formatINR(ticketType.price)}
                       </span>
                       <span>
-                        {ticketType.available_quantity} available
+                        {ticketType.capacity - ticketType.sold} available
                       </span>
                     </div>
                   </div>
@@ -139,7 +140,7 @@ export function TicketSelector({ ticketTypes, selectedTickets, onTicketChange, o
                         variant="outline"
                         size="icon"
                         onClick={() => updateTicketQuantity(ticketType, quantity + 1)}
-                        disabled={quantity >= ticketType.available_quantity}
+                        disabled={quantity >= (ticketType.capacity - ticketType.sold)}
                         className="h-8 w-8 border-primary/20"
                       >
                         <Plus className="h-4 w-4" />
