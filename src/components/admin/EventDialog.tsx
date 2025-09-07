@@ -389,6 +389,11 @@ export function EventDialog({ event, isOpen, onClose, onSaved }: EventDialogProp
           {/* Banner Image */}
           <div className="space-y-2">
             <Label>Banner Image</Label>
+            {bannerImage && (
+              <div className="mt-2">
+                <img src={bannerImage} alt="Banner preview" className="w-full h-auto rounded-lg object-cover" />
+              </div>
+            )}
             <ImageUploader
               bucketName="event-images"
               allowMultiple={false}
