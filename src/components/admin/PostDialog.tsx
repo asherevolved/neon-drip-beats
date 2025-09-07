@@ -18,6 +18,12 @@ interface Post {
   published_on: string;
   feature_image_url?: string;
   tags?: string[];
+  event_id?: string;
+}
+
+interface Event {
+  id: string;
+  title: string;
 }
 
 interface PostDialogProps {
@@ -36,10 +42,13 @@ export function PostDialog({ post, isOpen, onClose, onSaved }: PostDialogProps) 
   });
   const [featureImage, setFeatureImage] = useState<string>('');
   const [loading, setLoading] = useState(false);
+  const [events, setEvents] = useState<Event[]>([]);
+  const [selectedEvent, setSelectedEvent] = useState<string | undefined>(undefined);
   const { user } = useAuth();
   const { toast } = useToast();
 
   useEffect(() => {
+    fetchEvents();
     if (post) {
       setFormData({
         title: post.title,
@@ -48,6 +57,7 @@ export function PostDialog({ post, isOpen, onClose, onSaved }: PostDialogProps) 
         tags: post.tags?.join(', ') || '',
       });
       setFeatureImage(post.feature_image_url || '');
+      setSelectedEvent(post.event_id);
     } else {
       setFormData({
         title: '',
@@ -56,8 +66,27 @@ export function PostDialog({ post, isOpen, onClose, onSaved }: PostDialogProps) 
         tags: '',
       });
       setFeatureImage('');
+      setSelectedEvent(undefined);
     }
   }, [post]);
+
+  const fetchEvents = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('events')
+        .select('id, title')
+        .order('date', { ascending: false });
+
+      if (error) throw error;
+      setEvents(data || []);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to fetch events",
+        variant: "destructive",
+      });
+    }
+  };
 
   const generateSlug = (title: string) => {
     return title
@@ -90,6 +119,7 @@ export function PostDialog({ post, isOpen, onClose, onSaved }: PostDialogProps) 
         tags: formData.tags ? formData.tags.split(',').map(tag => tag.trim()).filter(Boolean) : null,
         published_on: new Date().toISOString(),
         created_by: user.id,
+        event_id: selectedEvent || null,
       };
 
       if (post) {
@@ -180,6 +210,23 @@ export function PostDialog({ post, isOpen, onClose, onSaved }: PostDialogProps) 
               onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
               placeholder="tag1, tag2, tag3"
             />
+          </div>
+
+          <div>
+            <Label htmlFor="event">Link to Event (Optional)</Label>
+            <Select value={selectedEvent || ''} onValueChange={(value) => setSelectedEvent(value || undefined)}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select an event" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">None</SelectItem>
+                {events.map(event => (
+                  <SelectItem key={event.id} value={event.id}>
+                    {event.title}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-2">
