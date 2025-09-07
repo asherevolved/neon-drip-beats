@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { formatINR } from '@/lib/formatCurrency';
 import { ArrowLeft, Upload, Loader2, Copy, Check } from 'lucide-react';
+import upiQrCode from '@/assets/upi-qr-real.jpg';
 
 interface PaymentSectionProps {
   totalAmount: number;
@@ -129,7 +130,7 @@ export function PaymentSection({ totalAmount, onBack, onPaymentComplete, loading
             <div className="bg-white p-4 rounded-lg inline-block">
               {/* Use provided UPI QR code for payments */}
               <img
-                src="/536956508_1068665405351431_6436867969660641199_n.jpg"
+                src={upiQrCode}
                 alt="Continental Entertainments UPI QR Code - Scan to Pay"
                 className="w-48 h-48 object-contain"
               />
