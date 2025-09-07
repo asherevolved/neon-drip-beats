@@ -481,7 +481,7 @@ export default function EventBooking() {
                         <div className="text-center">
                           <h4 className="font-medium mb-3">Scan QR Code</h4>
                           <div className="bg-white p-4 rounded-lg inline-block">
-                            <img src={upiQRImage} alt="UPI QR Code" className="w-32 h-32 object-contain" />
+                            <img src={upiQRImage} alt="UPI QR Code" className="w-48 h-48 object-contain" />
                           </div>
                           <p className="text-xs text-muted-foreground mt-2">
                             Open any UPI app and scan this code

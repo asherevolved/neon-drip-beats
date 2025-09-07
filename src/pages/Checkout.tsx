@@ -261,7 +261,7 @@ export default function Checkout() {
                     <div className="grid gap-4 md:grid-cols-2">
                       <div>
                         <div className="bg-background/50 p-4 rounded-lg text-center">
-                          <img src={upiQRImage} alt="UPI QR Code" className="mx-auto w-32 h-32 mb-2" />
+                          <img src={upiQRImage} alt="UPI QR Code" className="mx-auto w-48 h-48 mb-2" />
                           <p className="text-sm text-muted-foreground">Scan with any UPI app</p>
                         </div>
                       </div>
