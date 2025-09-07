@@ -134,16 +134,7 @@ const HeroSection = () => {
               VIEW EVENTS
             </motion.button>
             
-            <motion.button whileHover={{
-            scale: 1.05,
-            y: -2
-          }} whileTap={{
-            scale: 0.95
-          }} className="btn-red" onClick={() => document.getElementById('book')?.scrollIntoView({
-            behavior: 'smooth'
-          })}>
-              BOOK NOW
-            </motion.button>
+            
           </motion.div>
         </motion.div>
 
