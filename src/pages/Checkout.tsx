@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, Copy, Upload, CheckCircle } from 'lucide-react';
 import { formatINR } from '@/lib/formatCurrency';
-import upiQRImage from '@/assets/upi-qr-real.png';
+import upiQRImage from '@/assets/upi-qr-real.jpg';
 
 interface TicketItem {
   tierId: string;

@@ -13,7 +13,7 @@ import { Calendar, MapPin, Clock, ArrowLeft, Copy, Upload, CheckCircle, Loader2 
 import { format } from 'date-fns';
 import { Link } from 'react-router-dom';
 import { formatINR } from '@/lib/formatCurrency';
-import upiQRImage from '@/assets/upi-qr-real.png';
+import upiQRImage from '@/assets/upi-qr-real.jpg';
 
 interface Event {
   id: string;
