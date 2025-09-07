@@ -132,7 +132,7 @@ export function PaymentSection({ totalAmount, onBack, onPaymentComplete, loading
               <img
                 src={upiQrCode}
                 alt="Continental Entertainments UPI QR Code - Scan to Pay"
-                className="w-48 h-48 object-contain"
+                className="w-64 h-64 object-contain"
               />
             </div>
             <p className="text-xs text-muted-foreground mt-2">
