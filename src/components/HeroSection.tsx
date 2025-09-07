@@ -1,10 +1,8 @@
 import React, { useRef, useState } from 'react';
 import { motion } from 'framer-motion';
-import { useIsMobile } from '@/hooks/use-mobile';
 import heroImage from '@/assets/hero-dj.jpg';
 const HeroSection = () => {
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const isMobile = useIsMobile();
   const [tilt, setTilt] = useState({
     rx: 0,
     ry: 0
@@ -35,13 +33,14 @@ const HeroSection = () => {
   }}>
       {/* Background Video with Overlay (public/Abstract_Neon_Liquid_Loop_Ready.mp4) */}
       <div className="absolute inset-0 z-0">
-        {isMobile ? <img src={heroImage} alt="Continental Entertainments - Premier DJ and Event Services" className="w-full h-full object-cover" /> : <video className="w-full h-full object-cover" src="/Abstract_Neon_Liquid_Loop_Ready.mp4" poster="/placeholder.svg" autoPlay muted loop playsInline preload="auto" aria-hidden="true" // inline style to ensure brightness/saturation increase across environments
-        style={{
+        <video className="w-full h-full object-cover" src="/Abstract_Neon_Liquid_Loop_Ready.mp4" poster="/placeholder.svg" autoPlay muted loop playsInline preload="auto" aria-hidden="true"
+      // inline style to ensure brightness/saturation increase across environments
+      style={{
         filter: 'brightness(1.25) contrast(1.08) saturate(1.25)'
-      }} />}
+      }} />
 
         {/* Fallback background image for environments where video is not available */}
-
+        <img src={heroImage} alt="Continental Entertainments - Premier DJ and Event Services" className="hidden" />
 
   {/* Lessen overlay darkness so the video reads brighter */}
   <div className="absolute inset-0 bg-jet-black/30 pointer-events-none"></div>

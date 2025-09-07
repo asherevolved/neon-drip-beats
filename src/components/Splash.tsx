@@ -48,7 +48,7 @@ export default function Splash({ onFinish }: SplashProps) {
           playsInline
           muted
           onEnded={handleEnded}
-          className="w-full h-full object-cover"
+          className="w-full h-full object-contain"
         />
       </div>
     </div>
