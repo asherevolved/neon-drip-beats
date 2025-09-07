@@ -136,6 +136,13 @@ const EventsSection = () => {
           y: -10,
           scale: 1.02
         }} className="glass-card p-6 group cursor-pointer">
+              {event.banner_image_url && (
+                <img
+                  src={event.banner_image_url}
+                  alt={event.title}
+                  className="w-full h-48 object-cover rounded-md mb-4"
+                />
+              )}
               {/* Status Badge */}
               <div className="flex justify-between items-start mb-4">
                 <span className="px-3 py-1 rounded-full text-xs font-bebas border border-primary text-primary">
