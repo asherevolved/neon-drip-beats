@@ -53,7 +53,6 @@ export function EventDialog({ event, isOpen, onClose, onSaved }: EventDialogProp
   });
   const [ticketTypes, setTicketTypes] = useState<TicketType[]>([]);
   const [loading, setLoading] = useState(false);
-  const [uploadingImages, setUploadingImages] = useState(false);
   const [galleryImages, setGalleryImages] = useState<string[]>([]);
   const [bannerImage, setBannerImage] = useState<string>('');
   const { user } = useAuth();
@@ -127,62 +126,6 @@ export function EventDialog({ event, isOpen, onClose, onSaved }: EventDialogProp
 
   const removeTicketType = (index: number) => {
     setTicketTypes(ticketTypes.filter((_, i) => i !== index));
-  };
-
-  const uploadImage = async (file: File, type: 'banner' | 'gallery') => {
-    try {
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
-      const filePath = `${type}/${fileName}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from('event-images')
-        .upload(filePath, file);
-
-      if (uploadError) throw uploadError;
-
-      const { data } = supabase.storage
-        .from('event-images')
-        .getPublicUrl(filePath);
-
-      return data.publicUrl;
-    } catch (error) {
-      toast({
-        title: "Upload Error",
-        description: "Failed to upload image",
-        variant: "destructive",
-      });
-      return null;
-    }
-  };
-
-  const handleBannerUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setUploadingImages(true);
-    const url = await uploadImage(file, 'banner');
-    if (url) {
-      setBannerImage(url);
-    }
-    setUploadingImages(false);
-  };
-
-  const handleGalleryUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    if (files.length === 0) return;
-
-    setUploadingImages(true);
-    const uploadPromises = files.map(file => uploadImage(file, 'gallery'));
-    const urls = await Promise.all(uploadPromises);
-    const validUrls = urls.filter(url => url !== null) as string[];
-    
-    setGalleryImages(prev => [...prev, ...validUrls]);
-    setUploadingImages(false);
-  };
-
-  const removeGalleryImage = (index: number) => {
-    setGalleryImages(prev => prev.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {

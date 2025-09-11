@@ -138,17 +138,23 @@ export function ImageUploader({
         .from(bucketName)
         .getPublicUrl(filePath);
 
-      setImageFiles(prev => prev.map(img => 
-        img.id === imageId 
-          ? { ...img, url: data.publicUrl, progress: 100, isUploading: false, error: undefined }
-          : img
-      ));
-
-      // Update parent component
-      const updatedFiles = imageFiles.map(img => 
-        img.id === imageId ? { ...img, url: data.publicUrl } : img
-      );
-      updateParent(updatedFiles);
+      setImageFiles(prev => {
+        const updatedFiles = prev.map(img => 
+          img.id === imageId 
+            ? { ...img, url: data.publicUrl, progress: 100, isUploading: false, error: undefined }
+            : img
+        );
+        
+        // Update parent component with the new state
+        const urls = updatedFiles.filter(f => f.url && !f.error).map(f => f.url);
+        if (allowMultiple) {
+          onChange(urls);
+        } else {
+          onChange(urls[0] || '');
+        }
+        
+        return updatedFiles;
+      });
 
       return data.publicUrl;
     } catch (error) {
@@ -225,7 +231,11 @@ export function ImageUploader({
         isUploading: false
       }));
       
-      setImageFiles(prev => [...prev, ...newFiles]);
+      setImageFiles(prev => {
+        const updatedFiles = [...prev, ...newFiles];
+        return updatedFiles;
+      });
+      
       newFiles.forEach(file => {
         if (file.file) {
           uploadImage(file.file, file.id);
@@ -251,9 +261,19 @@ export function ImageUploader({
   };
 
   const removeImage = (id: string) => {
-    const newFiles = imageFiles.filter(f => f.id !== id);
-    setImageFiles(newFiles);
-    updateParent(newFiles);
+    setImageFiles(prev => {
+      const newFiles = prev.filter(f => f.id !== id);
+      
+      // Update parent component with the new state
+      const urls = newFiles.filter(f => f.url && !f.error).map(f => f.url);
+      if (allowMultiple) {
+        onChange(urls);
+      } else {
+        onChange(urls[0] || '');
+      }
+      
+      return newFiles;
+    });
   };
 
   const retryUpload = (id: string) => {
@@ -264,11 +284,21 @@ export function ImageUploader({
   };
 
   const moveImage = (fromIndex: number, toIndex: number) => {
-    const newFiles = [...imageFiles];
-    const [movedFile] = newFiles.splice(fromIndex, 1);
-    newFiles.splice(toIndex, 0, movedFile);
-    setImageFiles(newFiles);
-    updateParent(newFiles);
+    setImageFiles(prev => {
+      const newFiles = [...prev];
+      const [movedFile] = newFiles.splice(fromIndex, 1);
+      newFiles.splice(toIndex, 0, movedFile);
+      
+      // Update parent component with the new state
+      const urls = newFiles.filter(f => f.url && !f.error).map(f => f.url);
+      if (allowMultiple) {
+        onChange(urls);
+      } else {
+        onChange(urls[0] || '');
+      }
+      
+      return newFiles;
+    });
   };
 
   const totalProgress = imageFiles.length > 0 

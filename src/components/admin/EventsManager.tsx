@@ -42,6 +42,18 @@ export function EventsManager() {
         .order('date', { ascending: false });
 
       if (error) throw error;
+      
+      console.log('Admin: Fetched events:', data);
+      
+      // Debug: Log each event's banner_image_url specifically
+      data?.forEach((event, index) => {
+        console.log(`Admin Event ${index + 1} (${event.title}):`, {
+          id: event.id,
+          banner_image_url: event.banner_image_url,
+          has_banner: !!event.banner_image_url
+        });
+      });
+      
       setEvents((data || []) as Event[]);
     } catch (error) {
       toast({
@@ -55,30 +67,60 @@ export function EventsManager() {
   };
 
   const [deleteEvent, setDeleteEvent] = useState<Event | null>(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   const handleDeleteEvent = async () => {
     if (!deleteEvent) return;
 
+    setDeleteLoading(true);
     try {
+      console.log('Attempting to delete event:', deleteEvent.id);
+      
+      // Check current user role first
+      const { data: userProfile, error: profileError } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', (await supabase.auth.getUser()).data.user?.id)
+        .single();
+      
+      if (profileError) {
+        console.error('Error fetching user profile:', profileError);
+        throw new Error('Unable to verify admin permissions');
+      }
+      
+      console.log('User role:', userProfile?.role);
+      
+      if (userProfile?.role !== 'admin') {
+        throw new Error('Only admin users can delete events');
+      }
+
       const { error } = await supabase
         .from('events')
         .delete()
         .eq('id', deleteEvent.id);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase delete error:', error);
+        throw error;
+      }
 
+      console.log('Event deleted successfully');
       toast({
         title: "Success",
         description: "Event deleted successfully",
       });
       
       fetchEvents();
-    } catch (error) {
+      setDeleteEvent(null);
+    } catch (error: any) {
+      console.error('Delete operation failed:', error);
       toast({
         title: "Error",
-        description: "Failed to delete event",
+        description: error.message || "Failed to delete event",
         variant: "destructive",
       });
+    } finally {
+      setDeleteLoading(false);
     }
   };
 
@@ -146,7 +188,27 @@ export function EventsManager() {
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {filteredEvents.map((event) => (
-          <Card key={event.id} className="bg-card/50 border-primary/20">
+          <Card key={event.id} className="bg-card/50 border-primary/20 overflow-hidden">
+            {event.banner_image_url ? (
+              <div className="aspect-video w-full overflow-hidden bg-gray-100">
+                <img
+                  src={event.banner_image_url}
+                  alt={event.title}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    console.error('Admin card image failed to load:', event.banner_image_url);
+                    e.currentTarget.style.display = 'none';
+                  }}
+                  onLoad={() => {
+                    console.log('Admin card image loaded:', event.banner_image_url);
+                  }}
+                />
+              </div>
+            ) : (
+              <div className="aspect-video w-full bg-gray-200 flex items-center justify-center">
+                <span className="text-gray-500 text-sm">No Banner Image</span>
+              </div>
+            )}
             <CardHeader>
               <div className="flex items-start justify-between">
                 <div className="space-y-1">

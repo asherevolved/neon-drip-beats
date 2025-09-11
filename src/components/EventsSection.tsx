@@ -40,6 +40,17 @@ const EventsSection = () => {
       }).limit(6);
       if (error) throw error;
       console.log('Fetched upcoming events:', events);
+      
+      // Debug: Log each event's banner_image_url specifically
+      events?.forEach((event, index) => {
+        console.log(`Event ${index + 1} (${event.title}):`, {
+          id: event.id,
+          banner_image_url: event.banner_image_url,
+          has_banner: !!event.banner_image_url,
+          gallery_images: event.gallery_images
+        });
+      });
+      
       setUpcomingEvents(events as any[] || []);
     } catch (error) {
       console.error('Error fetching events:', error);
@@ -136,12 +147,26 @@ const EventsSection = () => {
           y: -10,
           scale: 1.02
         }} className="glass-card p-6 group cursor-pointer">
-              {event.banner_image_url && (
-                <img
-                  src={event.banner_image_url}
-                  alt={event.title}
-                  className="w-full h-48 object-cover rounded-md mb-4"
-                />
+              {/* Event Banner Image */}
+              {event.banner_image_url ? (
+                <div className="w-full h-48 mb-4 overflow-hidden rounded-md bg-gray-800">
+                  <img
+                    src={event.banner_image_url}
+                    alt={event.title}
+                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                    onError={(e) => {
+                      console.error('Failed to load image:', event.banner_image_url);
+                      e.currentTarget.style.display = 'none';
+                    }}
+                    onLoad={() => {
+                      console.log('Image loaded successfully:', event.banner_image_url);
+                    }}
+                  />
+                </div>
+              ) : (
+                <div className="w-full h-48 mb-4 bg-gradient-to-br from-gray-800 to-gray-900 rounded-md flex items-center justify-center">
+                  <span className="text-gray-500 text-sm">No Image</span>
+                </div>
               )}
               {/* Status Badge */}
               <div className="flex justify-between items-start mb-4">
