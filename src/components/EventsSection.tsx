@@ -29,13 +29,7 @@ const EventsSection = () => {
       const {
         data: events,
         error
-      } = await supabase.from('events').select(`
-          *,
-          ticket_types (
-            id,
-            price
-          )
-        `).eq('category', 'upcoming').order('date', {
+      } = await supabase.from('events').select('*').eq('category', 'upcoming').order('date', {
         ascending: true
       }).limit(6);
       if (error) throw error;
@@ -51,7 +45,24 @@ const EventsSection = () => {
         });
       });
       
-      setUpcomingEvents(events as any[] || []);
+      // Fetch ticket types separately for price display
+      if (events && events.length > 0) {
+        const eventsWithTickets = await Promise.all(
+          events.map(async (event) => {
+            const { data: ticketTypes } = await supabase
+              .from('ticket_types')
+              .select('id, price')
+              .eq('event_id', event.id);
+            return {
+              ...event,
+              ticket_types: ticketTypes || []
+            };
+          })
+        );
+        setUpcomingEvents(eventsWithTickets);
+      } else {
+        setUpcomingEvents([]);
+      }
     } catch (error) {
       console.error('Error fetching events:', error);
     } finally {

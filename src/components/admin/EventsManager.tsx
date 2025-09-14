@@ -38,7 +38,7 @@ export function EventsManager() {
     try {
       const { data, error } = await supabase
         .from('events')
-        .select('*')
+        .select('id, title, description, date, starts_at, venue, city, category, banner_image_url, created_at')
         .order('date', { ascending: false });
 
       if (error) throw error;
