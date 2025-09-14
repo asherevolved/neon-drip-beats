@@ -6,18 +6,18 @@ import { AuthProvider } from '@/hooks/useAuth'
 import './index.css'
 
 function Root() {
-	const [ready, setReady] = useState(true); // Changed to true to skip splash
+  const [ready, setReady] = useState(false); // Changed to false to show splash
 
-	return (
-		<>
-			{!ready && <Splash onFinish={() => setReady(true)} />}
-			{ready && (
-				<AuthProvider>
-					<App />
-				</AuthProvider>
-			)}
-		</>
-	);
+  return (
+    <>
+      {!ready && <Splash onFinish={() => setReady(true)} />}
+      {ready && (
+        <AuthProvider>
+          <App />
+        </AuthProvider>
+      )}
+    </>
+  );
 }
 
 createRoot(document.getElementById("root")!).render(<Root />);

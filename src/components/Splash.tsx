@@ -48,7 +48,7 @@ export default function Splash({ onFinish }: SplashProps) {
           playsInline
           muted
           onEnded={handleEnded}
-          className="w-full h-full object-contain"
+          className="w-full h-full object-contain max-w-[90vw] max-h-[90vh] md:max-w-[70vw] md:max-h-[70vh]"
         />
       </div>
     </div>

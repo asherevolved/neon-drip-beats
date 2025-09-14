@@ -81,15 +81,11 @@ const Footer = () => {
             <div className="space-y-3 text-muted-gray">
               <div className="flex items-center">
                 <Phone className="w-4 h-4 mr-3 text-primary" />
-                <span className="font-inter">+1 (555) NEON-BEAT</span>
+                <span className="font-inter">+91 99724 93393</span>
               </div>
               <div className="flex items-center">
                 <Mail className="w-4 h-4 mr-3 text-primary" />
-                <span className="font-inter">book@continental-ent.com</span>
-              </div>
-              <div className="flex items-center">
-                <MapPin className="w-4 h-4 mr-3 text-primary" />
-                <span className="font-inter">Downtown District, Cyberpunk City</span>
+                <span className="font-inter">Continentalent1@gmail.com</span>
               </div>
             </div>
           </motion.div>

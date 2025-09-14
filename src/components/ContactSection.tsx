@@ -35,29 +35,22 @@ const ContactSection = () => {
     {
       icon: Phone,
       title: 'CALL US',
-      info: '+1 (555) NEON-BEAT',
+      info: '+91 99724 93393',
       subInfo: 'Available 24/7',
       color: 'text-primary'
     },
     {
       icon: Mail,
       title: 'EMAIL US',
-      info: 'book@continental-ent.com',
+      info: 'Continentalent1@gmail.com',
       subInfo: 'Response within 2 hours',
       color: 'text-secondary'
-    },
-    {
-      icon: MapPin,
-      title: 'LOCATION',
-      info: 'Downtown District',
-      subInfo: 'Cyberpunk City, CC 12345',
-      color: 'text-primary'
     },
     {
       icon: Clock,
       title: 'AVAILABILITY',
       info: '24/7 Booking',
-      subInfo: 'Events worldwide',
+      subInfo: '',
       color: 'text-secondary'
     }
   ];
@@ -152,7 +145,7 @@ const ContactSection = () => {
                     value={formData.phone}
                     onChange={handleChange}
                     className="w-full p-4 bg-charcoal border border-border rounded-lg text-text-white font-inter focus:border-primary focus:shadow-neon transition-all duration-300"
-                    placeholder="+1 (555) 123-4567"
+                    placeholder="+91 99724 93393"
                   />
                 </div>
                 <div>

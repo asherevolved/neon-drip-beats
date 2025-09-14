@@ -89,27 +89,24 @@ const AboutSection = () => {
           duration: 0.6
         }}>
             <h3 className="font-bebas text-3xl md:text-4xl mb-6 text-text-white">
-              THE FUTURE OF <span className="neon-text">ELECTRONIC MUSIC</span>
+              ABOUT <span className="neon-text">CONTINENTAL</span>
             </h3>
             
             <div className="space-y-6 text-muted-gray font-inter text-lg leading-relaxed">
               <p>
-                Continental Entertainments represents the cutting edge of electronic music experiences. 
-                Born from the underground scene and forged in the neon-lit clubs of the cyber era, 
-                we bring a unique fusion of technology, artistry, and pure energy to every event.
+                Continental Entertainments is a party entertainment company, bringing unforgettable experiences to life across India. With a passion for creativity and a commitment to excellence, we specialize in curating parties in clubbing and concerts.
               </p>
               
               <p>
-                Our signature sound blends pulsing basslines with ethereal synths, creating immersive 
-                soundscapes that transport audiences into a digital dreamworld. From intimate underground 
-                gatherings to massive cyberpunk festivals, we craft experiences that linger long after 
-                the last beat drops.
+                Founded on the belief that great entertainment connects people and creates lasting memories, our team blends innovation with precision to deliver seamless events tailored to every client's vision. Whether you're planning a high-profile concert, Continental Entertainments provides the expertise, talent, and production support to make it extraordinary.
               </p>
               
               <p>
-                With state-of-the-art equipment, custom light shows, and an intuitive understanding of 
-                crowd dynamics, Continental Entertainments doesn't just play music – we orchestrate 
-                unforgettable journeys through sound and light.
+                We work with an extensive network of performers, artists, technical experts, and creative professionals to ensure every event not only meets—but exceeds—expectations.
+              </p>
+              
+              <p>
+                Continental Entertainments – Where every event is an experience.
               </p>
             </div>
 
