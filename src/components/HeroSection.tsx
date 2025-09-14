@@ -1,12 +1,14 @@
 import React, { useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import heroImage from '@/assets/hero-dj.jpg';
+
 const HeroSection = () => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [tilt, setTilt] = useState({
     rx: 0,
     ry: 0
   });
+
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const el = containerRef.current;
     if (!el) return;
@@ -24,10 +26,12 @@ const HeroSection = () => {
       ry
     });
   };
+
   const handleMouseLeave = () => setTilt({
     rx: 0,
     ry: 0
   });
+
   return <section id="hero" ref={containerRef} onMouseMove={handleMouseMove} onMouseLeave={handleMouseLeave} className="relative min-h-screen flex items-center justify-center overflow-hidden" style={{
     perspective: 1200
   }}>
@@ -82,20 +86,30 @@ const HeroSection = () => {
         duration: 1,
         delay: 0.2
       }}>
-          <motion.h1 className="font-bebas text-6xl md:text-8xl lg:text-9xl mb-6 leading-none" style={{
-          transform: 'translateZ(60px)'
-        }} animate={{
-          textShadow: ['0 0 20px hsl(var(--neon-lime))', '0 0 40px hsl(var(--neon-lime)), 0 0 60px hsl(var(--neon-lime))', '0 0 20px hsl(var(--neon-lime))']
-        }} transition={{
-          duration: 2,
-          repeat: Infinity
-        }}>
-            <span className="text-text-white">CONTINENTAL</span>
-            <br />
-            <span className="neon-text-lg animate-shimmer bg-gradient-to-r from-neon-lime via-neon-lime-glow to-neon-lime bg-[length:200%_100%] bg-clip-text text-transparent">
-              ENTERTAINMENTS
-            </span>
-          </motion.h1>
+          {/* Replaced text with image - made smaller */}
+          <motion.div 
+            className="mb-6 flex justify-center"
+            style={{
+              transform: 'translateZ(60px)'
+            }}
+            animate={{
+              filter: ['drop-shadow(0 0 20px hsl(var(--neon-lime)))', 'drop-shadow(0 0 40px hsl(var(--neon-lime))) drop-shadow(0 0 60px hsl(var(--neon-lime)))', 'drop-shadow(0 0 20px hsl(var(--neon-lime)))']
+            }}
+            transition={{
+              duration: 2,
+              repeat: Infinity
+            }}
+          >
+            <img 
+              src="/continental_no_bg.png" 
+              alt="Continental Entertainments" 
+              className="max-w-full h-auto"
+              style={{
+                maxHeight: '150px', // Reduced from 200px to 150px
+                width: 'auto'
+              }}
+            />
+          </motion.div>
 
           <motion.div initial={{
           opacity: 0,
@@ -106,7 +120,7 @@ const HeroSection = () => {
         }} transition={{
           duration: 0.8,
           delay: 0.6
-        }} className="mb-8">
+        }} className="mb-8 -mt-4">
             <p className="text-xl md:text-2xl text-muted-gray mb-2 font-inter">
               PREMIUM DJ SERVICES & EVENT EXPERIENCES
             </p>
@@ -122,7 +136,7 @@ const HeroSection = () => {
         }} transition={{
           duration: 0.6,
           delay: 1
-        }} className="flex flex-col sm:flex-row gap-6 justify-center items-center">
+        }} className="flex flex-col sm:flex-row gap-6 justify-center items-center -mt-2">
             <motion.button whileHover={{
             scale: 1.05,
             y: -2
@@ -151,4 +165,5 @@ const HeroSection = () => {
       </div>
     </section>;
 };
+
 export default HeroSection;

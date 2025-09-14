@@ -28,15 +28,7 @@ const Navigation = () => {
     >
       <div className="container mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
-          {/* Logo */}
-          <motion.div
-            whileHover={{ scale: 1.05 }}
-            className="font-bebas text-2xl neon-text cursor-pointer"
-            onClick={() => scrollToSection('hero')}
-          >
-            CONTINENTAL
-            <span className="text-secondary animate-flicker">ENTERTAINMENTS</span>
-          </motion.div>
+          {/* Logo removed as requested */}
 
           {/* Navigation Links */}
           <div className="hidden md:flex items-center space-x-8">

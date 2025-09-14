@@ -147,13 +147,13 @@ const EventsSection = () => {
           y: -10,
           scale: 1.02
         }} className="glass-card p-6 group cursor-pointer">
-              {/* Event Banner Image */}
+              {/* Event Banner Image - Made bigger with increased aspect ratio */}
               {event.banner_image_url ? (
-                <div className="w-full mb-6 overflow-hidden rounded-lg bg-gray-800" style={{ aspectRatio: '23/10' }}>
+                <div className="w-full mb-6 overflow-hidden rounded-lg bg-gray-800" style={{ aspectRatio: '4/3' }}>
                   <img
                     src={event.banner_image_url}
                     alt={event.title}
-                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                    className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105"
                     onError={(e) => {
                       console.error('Failed to load image:', event.banner_image_url);
                       e.currentTarget.style.display = 'none';
@@ -164,7 +164,7 @@ const EventsSection = () => {
                   />
                 </div>
               ) : (
-                <div className="w-full mb-6 bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg flex items-center justify-center" style={{ aspectRatio: '23/10' }}>
+                <div className="w-full mb-6 bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg flex items-center justify-center" style={{ aspectRatio: '4/3' }}>
                   <span className="text-gray-500 text-sm">No Image</span>
                 </div>
               )}
