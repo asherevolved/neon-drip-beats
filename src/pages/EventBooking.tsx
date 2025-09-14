@@ -586,9 +586,9 @@ export default function EventBooking() {
           <div className="fixed bottom-0 left-0 right-0 bg-background/90 backdrop-blur-sm border-t border-primary/20 p-4 md:hidden">
             <div className="container mx-auto flex justify-between items-center">
               <div>
-                <p className="font-semibold">Total: {formatINR(getTotalAmount())}</p>
+                <p className="font-semibold">Amount to Pay: {formatINR(getTotalAmount())}</p>
                 <p className="text-sm text-muted-foreground">
-                  {getTotalQuantity()} tickets
+                  {getTotalQuantity()} tickets + platform fee
                 </p>
               </div>
               <Button 
