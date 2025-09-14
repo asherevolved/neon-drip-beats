@@ -8,8 +8,11 @@ import { Loader2 } from 'lucide-react';
 export default function Admin() {
   const { user, loading, isAdmin } = useAuth();
 
+  console.log('Admin component render:', { user: !!user, loading, isAdmin });
+
   // Show loading while checking auth
   if (loading) {
+    console.log('Admin: Showing loading spinner');
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -19,13 +22,17 @@ export default function Admin() {
 
   // Redirect to auth if not logged in
   if (!user) {
+    console.log('Admin: No user, redirecting to auth');
     return <Navigate to="/auth" replace />;
   }
 
   // Redirect to home if not admin
   if (!isAdmin) {
+    console.log('Admin: User is not admin, redirecting to home');
     return <Navigate to="/" replace />;
   }
+
+  console.log('Admin: Rendering admin dashboard');
   return (
     <div className="min-h-screen bg-black">
       <div className="absolute inset-0 bg-gradient-to-br from-black via-black to-primary/10" />

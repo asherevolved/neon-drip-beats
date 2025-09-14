@@ -23,64 +23,76 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const { toast } = useToast();
 
   useEffect(() => {
-    console.log('useAuth: Setting up auth state listener');
+    let isMounted = true;
     
-    // Get initial session
-    const getInitialSession = async () => {
-      console.log('useAuth: Getting initial session');
-      const { data: { session }, error } = await supabase.auth.getSession();
-      console.log('useAuth: Initial session result:', { session: !!session, user: session?.user?.email, error });
-      
-      if (session) {
-        // Trigger the auth state change handler manually for initial session
-        handleAuthStateChange('INITIAL_SESSION', session);
-      } else {
-        console.log('useAuth: No initial session, setting loading to false');
-        setLoading(false);
-      }
-    };
-
-    const handleAuthStateChange = async (event: string, session: any) => {
-      console.log('useAuth: Auth state changed', { event, user: session?.user?.email, session: !!session });
-      
-      setSession(session);
-      setUser(session?.user ?? null);
-      
-      if (session?.user) {
-        // Check if user is admin
-        try {
-          console.log('useAuth: Checking admin status for user:', session.user.email);
-          const { data: profile, error } = await supabase
+    const checkInitialAuth = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (!isMounted) return;
+        
+        if (session?.user) {
+          setUser(session.user);
+          setSession(session);
+          
+          // Check admin status
+          const { data: profile } = await supabase
             .from('profiles')
             .select('role')
             .eq('id', session.user.id)
-            .maybeSingle(); // Use maybeSingle instead of single to avoid errors
-          
-          console.log('useAuth: Profile query result:', { profile, error });
-          
-          const adminStatus = profile?.role === 'admin';
-          console.log('useAuth: Admin status:', adminStatus);
-          setIsAdmin(adminStatus);
-        } catch (error) {
-          console.error('useAuth: Error checking admin status:', error);
-          setIsAdmin(false);
+            .single();
+            
+          if (isMounted) {
+            setIsAdmin(profile?.role === 'admin');
+          }
         }
-      } else {
-        console.log('useAuth: No user session, setting isAdmin to false');
-        setIsAdmin(false);
+      } catch (error) {
+        console.error('Auth check error:', error);
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
       }
-      
-      console.log('useAuth: Setting loading to false');
-      setLoading(false);
     };
-    
-    // Set up auth state listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(handleAuthStateChange);
 
-    // Get initial session
-    getInitialSession();
+    checkInitialAuth();
 
-    return () => subscription.unsubscribe();
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        if (!isMounted) return;
+        
+        setSession(session);
+        setUser(session?.user ?? null);
+        
+        if (session?.user) {
+          try {
+            const { data: profile } = await supabase
+              .from('profiles')
+              .select('role')
+              .eq('id', session.user.id)
+              .single();
+            
+            if (isMounted) {
+              setIsAdmin(profile?.role === 'admin');
+            }
+          } catch (error) {
+            console.error('Profile check error:', error);
+            if (isMounted) {
+              setIsAdmin(false);
+            }
+          }
+        } else {
+          if (isMounted) {
+            setIsAdmin(false);
+          }
+        }
+      }
+    );
+
+    return () => {
+      isMounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signIn = async (email: string, password: string) => {
