@@ -2,6 +2,7 @@ import { createRoot } from 'react-dom/client'
 import { useState, useEffect } from 'react'
 import App from './App.tsx'
 import Splash from '@/components/Splash'
+import { AuthProvider } from '@/hooks/useAuth'
 import './index.css'
 
 function Root() {
@@ -10,7 +11,11 @@ function Root() {
 	return (
 		<>
 			{!ready && <Splash onFinish={() => setReady(true)} />}
-			{ready && <App />}
+			{ready && (
+				<AuthProvider>
+					<App />
+				</AuthProvider>
+			)}
 		</>
 	);
 }

@@ -51,29 +51,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     );
 
-    // Get initial session
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      
-      if (session?.user) {
-        try {
-          const { data: profile, error } = await supabase
-            .from('profiles')
-            .select('role')
-            .eq('id', session.user.id)
-            .maybeSingle();
-          
-          setIsAdmin(profile?.role === 'admin');
-        } catch (error) {
-          console.error('Error checking initial admin status:', error);
-          setIsAdmin(false);
-        }
-      }
-      
-      setLoading(false);
-    });
-
     return () => subscription.unsubscribe();
   }, []);
 
