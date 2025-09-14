@@ -23,77 +23,52 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const { toast } = useToast();
 
   useEffect(() => {
-    let isMounted = true;
-    
-    const checkInitialAuth = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        
-        if (!isMounted) return;
-        
-        if (session?.user) {
-          setUser(session.user);
-          setSession(session);
-          
-          // Check admin status
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('role')
-            .eq('id', session.user.id)
-            .single();
-            
-          if (isMounted) {
-            setIsAdmin(profile?.role === 'admin');
-          }
-        }
-      } catch (error) {
-        console.error('Auth check error:', error);
-      } finally {
-        if (isMounted) {
-          setLoading(false);
-        }
+    // Get initial session immediately
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+      
+      if (session?.user) {
+        checkAdminStatus(session.user.id);
+      } else {
+        setLoading(false);
       }
-    };
+    });
 
-    checkInitialAuth();
-
+    // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        if (!isMounted) return;
-        
+      (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
         
         if (session?.user) {
-          try {
-            const { data: profile } = await supabase
-              .from('profiles')
-              .select('role')
-              .eq('id', session.user.id)
-              .single();
-            
-            if (isMounted) {
-              setIsAdmin(profile?.role === 'admin');
-            }
-          } catch (error) {
-            console.error('Profile check error:', error);
-            if (isMounted) {
-              setIsAdmin(false);
-            }
-          }
+          checkAdminStatus(session.user.id);
         } else {
-          if (isMounted) {
-            setIsAdmin(false);
-          }
+          setIsAdmin(false);
+          setLoading(false);
         }
       }
     );
 
-    return () => {
-      isMounted = false;
-      subscription.unsubscribe();
-    };
+    return () => subscription.unsubscribe();
   }, []);
+
+  const checkAdminStatus = async (userId: string) => {
+    try {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', userId)
+        .single();
+      
+      setIsAdmin(profile?.role === 'admin');
+    } catch (error) {
+      console.error('Error checking admin status:', error);
+      setIsAdmin(false);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const signIn = async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({

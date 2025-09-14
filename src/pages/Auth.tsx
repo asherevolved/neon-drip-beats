@@ -20,6 +20,15 @@ export default function Auth() {
     return <Navigate to="/admin" replace />;
   }
 
+  // Show loading only briefly
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -33,14 +42,6 @@ export default function Auth() {
     await signUp(email, password);
     setIsSubmitting(false);
   };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-black flex items-center justify-center p-4">
