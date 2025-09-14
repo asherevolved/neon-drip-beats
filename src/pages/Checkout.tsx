@@ -190,15 +190,15 @@ export default function Checkout() {
                 
                 <div className="border-t border-primary/20 pt-4 space-y-2">
                   <div className="flex justify-between text-muted-foreground">
-                    <p>Subtotal</p>
+                    <p>Tickets Subtotal</p>
                     <p>{formatINR(subtotal)}</p>
                   </div>
                   <div className="flex justify-between text-muted-foreground">
-                    <p>Platform Fee</p>
+                    <p>Platform Fees</p>
                     <p>{formatINR(PLATFORM_FEE)}</p>
                   </div>
                   <div className="flex justify-between items-center font-bold text-lg border-t border-dashed border-primary/20 pt-2 mt-2">
-                    <p>Total</p>
+                    <p>Amount to Pay</p>
                     <p className="text-xl text-primary">{formatINR(total)}</p>
                   </div>
                 </div>
