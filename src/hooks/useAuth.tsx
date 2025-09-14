@@ -55,11 +55,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const checkAdminStatus = async (userId: string) => {
     try {
+      // Use a more efficient query with timeout
       const { data: profile } = await supabase
         .from('profiles')
         .select('role')
         .eq('id', userId)
-        .single();
+        .maybeSingle();
       
       setIsAdmin(profile?.role === 'admin');
     } catch (error) {

@@ -1,9 +1,10 @@
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { Calendar, MapPin, Clock, Users } from 'lucide-react';
+import { Calendar, MapPin, Clock } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { format } from 'date-fns';
+
 interface Event {
   id: string;
   title: string;
@@ -14,45 +15,41 @@ interface Event {
   category: 'upcoming' | 'past';
   banner_image_url?: string;
 }
+
 interface TicketType {
   id: string;
   price: number;
 }
+
 const EventsSection = () => {
   const [upcomingEvents, setUpcomingEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     fetchUpcomingEvents();
   }, []);
+
   const fetchUpcomingEvents = async () => {
     try {
-      const {
-        data: events,
-        error
-      } = await supabase.from('events').select('*').eq('category', 'upcoming').order('date', {
-        ascending: true
-      }).limit(6);
+      // Optimized query - only essential fields
+      const { data: events, error } = await supabase
+        .from('events')
+        .select('id, title, date, starts_at, venue, city, category, banner_image_url')
+        .eq('category', 'upcoming')
+        .order('date', { ascending: true })
+        .limit(6);
+
       if (error) throw error;
-      console.log('Fetched upcoming events:', events);
       
-      // Debug: Log each event's banner_image_url specifically
-      events?.forEach((event, index) => {
-        console.log(`Event ${index + 1} (${event.title}):`, {
-          id: event.id,
-          banner_image_url: event.banner_image_url,
-          has_banner: !!event.banner_image_url,
-          gallery_images: event.gallery_images
-        });
-      });
-      
-      // Fetch ticket types separately for price display
+      // Fetch ticket types in parallel for better performance
       if (events && events.length > 0) {
         const eventsWithTickets = await Promise.all(
           events.map(async (event) => {
             const { data: ticketTypes } = await supabase
               .from('ticket_types')
               .select('id, price')
-              .eq('event_id', event.id);
+              .eq('event_id', event.id)
+              .limit(5); // Limit to first 5 ticket types for price calculation
             return {
               ...event,
               ticket_types: ticketTypes || []
@@ -70,68 +67,59 @@ const EventsSection = () => {
     }
   };
 
-  // Set up real-time subscription to refresh events when they change
+  // Set up real-time subscription for event changes
   useEffect(() => {
-    const subscription = supabase.channel('events-changes').on('postgres_changes', {
-      event: '*',
-      schema: 'public',
-      table: 'events'
-    }, () => {
-      console.log('Event data changed, refetching...');
-      fetchUpcomingEvents();
-    }).subscribe();
+    const subscription = supabase
+      .channel('events-changes')
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'events'
+      }, () => {
+        fetchUpcomingEvents();
+      })
+      .subscribe();
+
     return () => {
       subscription.unsubscribe();
     };
   }, []);
-  const getStatusBadge = (status: string) => {
-    const badges = {
-      'tickets-available': {
-        text: 'TICKETS AVAILABLE',
-        color: 'border-primary text-primary'
-      },
-      'selling-fast': {
-        text: 'SELLING FAST',
-        color: 'border-secondary text-secondary animate-pulse'
-      },
-      'vip-only': {
-        text: 'VIP ONLY',
-        color: 'border-muted-gray text-muted-gray'
-      }
-    };
-    return badges[status as keyof typeof badges];
-  };
+
   const navigate = useNavigate();
+  
   const handleBuy = (id: string) => {
     navigate(`/book/${id}`);
   };
+
   const getLowestPrice = (ticketTypes: TicketType[]) => {
     if (!ticketTypes || ticketTypes.length === 0) return '₹0';
     const lowest = Math.min(...ticketTypes.map(t => t.price));
     return `₹${lowest}`;
   };
+
   if (loading) {
-    return <section id="events" className="py-20 relative">
+    return (
+      <section id="events" className="py-20 relative">
         <div className="container mx-auto px-6">
           <div className="text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+            <p className="text-muted-foreground mt-4">Loading events...</p>
           </div>
         </div>
-      </section>;
+      </section>
+    );
   }
-  return <section id="events" className="py-20 relative">
+
+  return (
+    <section id="events" className="py-20 relative">
       <div className="container mx-auto px-6">
-        <motion.div initial={{
-        opacity: 0,
-        y: 50
-      }} whileInView={{
-        opacity: 1,
-        y: 0
-      }} viewport={{
-        once: true
-      }} transition={{
-        duration: 0.6
-      }} className="text-center mb-16">
+        <motion.div
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-16"
+        >
           <h2 className="font-bebas text-5xl md:text-7xl mb-6">
             <span className="text-text-white">UPCOMING </span>
             <span className="neon-text-lg">EVENTS</span>
@@ -143,34 +131,26 @@ const EventsSection = () => {
         </motion.div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {upcomingEvents.map((event, index) => <motion.div key={event.id} initial={{
-          opacity: 0,
-          y: 50
-        }} whileInView={{
-          opacity: 1,
-          y: 0
-        }} viewport={{
-          once: true
-        }} transition={{
-          duration: 0.6,
-          delay: index * 0.2
-        }} whileHover={{
-          y: -10,
-          scale: 1.02
-        }} className="glass-card p-6 group cursor-pointer">
-              {/* Event Banner Image - Made bigger with increased aspect ratio */}
+          {upcomingEvents.map((event, index) => (
+            <motion.div
+              key={event.id}
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: index * 0.2 }}
+              whileHover={{ y: -10, scale: 1.02 }}
+              className="glass-card p-6 group cursor-pointer"
+            >
+              {/* Event Banner Image */}
               {event.banner_image_url ? (
                 <div className="w-full mb-6 overflow-hidden rounded-lg bg-gray-800" style={{ aspectRatio: '4/3' }}>
                   <img
                     src={event.banner_image_url}
                     alt={event.title}
-                    className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105"
+                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                    loading="lazy"
                     onError={(e) => {
-                      console.error('Failed to load image:', event.banner_image_url);
                       e.currentTarget.style.display = 'none';
-                    }}
-                    onLoad={() => {
-                      console.log('Image loaded successfully:', event.banner_image_url);
                     }}
                   />
                 </div>
@@ -179,7 +159,8 @@ const EventsSection = () => {
                   <span className="text-gray-500 text-sm">No Image</span>
                 </div>
               )}
-              {/* Status Badge */}
+
+              {/* Status Badge and Price */}
               <div className="flex justify-between items-start mb-4">
                 <span className="px-3 py-1 rounded-full text-xs font-bebas border border-primary text-primary">
                   TICKETS AVAILABLE
@@ -218,34 +199,26 @@ const EventsSection = () => {
               </div>
 
               {/* Buy Tickets Button */}
-              <motion.button whileHover={{
-            scale: 1.05
-          }} whileTap={{
-            scale: 0.95
-          }} className="w-full btn-neon group-hover:shadow-neon-lg transition-all duration-300" onClick={() => handleBuy(event.id)}>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="w-full btn-neon group-hover:shadow-neon-lg transition-all duration-300"
+                onClick={() => handleBuy(event.id)}
+              >
                 BUY TICKETS
               </motion.button>
-            </motion.div>)}
+            </motion.div>
+          ))}
         </div>
 
-        {upcomingEvents.length === 0 && <div className="text-center text-muted-gray">
+        {upcomingEvents.length === 0 && (
+          <div className="text-center text-muted-gray">
             <p>No upcoming events at the moment.</p>
-          </div>}
-
-        {/* All Events Link */}
-        <motion.div initial={{
-        opacity: 0
-      }} whileInView={{
-        opacity: 1
-      }} viewport={{
-        once: true
-      }} transition={{
-        duration: 0.6,
-        delay: 0.8
-      }} className="text-center mt-12">
-          
-        </motion.div>
+          </div>
+        )}
       </div>
-    </section>;
+    </section>
+  );
 };
+
 export default EventsSection;

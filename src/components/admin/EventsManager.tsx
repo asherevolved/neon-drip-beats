@@ -8,6 +8,7 @@ import { EventDialog } from './EventDialog';
 import { ConfirmDialog } from './ConfirmDialog';
 import { Plus, Calendar, MapPin, Edit, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
+import { LoadingSpinner } from './LoadingSpinner';
 
 interface Event {
   id: string;
@@ -36,29 +37,21 @@ export function EventsManager() {
 
   const fetchEvents = async () => {
     try {
+      // Optimized query - only fetch essential fields and limit results
       const { data, error } = await supabase
         .from('events')
-        .select('id, title, description, date, starts_at, venue, city, category, banner_image_url, created_at')
-        .order('date', { ascending: false });
+        .select('id, title, description, date, starts_at, venue, city, category, banner_image_url')
+        .order('date', { ascending: false })
+        .limit(50); // Limit to prevent large data fetches
 
       if (error) throw error;
       
-      console.log('Admin: Fetched events:', data);
-      
-      // Debug: Log each event's banner_image_url specifically
-      data?.forEach((event, index) => {
-        console.log(`Admin Event ${index + 1} (${event.title}):`, {
-          id: event.id,
-          banner_image_url: event.banner_image_url,
-          has_banner: !!event.banner_image_url
-        });
-      });
-      
       setEvents((data || []) as Event[]);
     } catch (error) {
+      console.error('Events fetch error:', error);
       toast({
         title: "Error",
-        description: "Failed to fetch events",
+        description: "Failed to fetch events. Please refresh the page.",
         variant: "destructive",
       });
     } finally {
@@ -137,9 +130,7 @@ export function EventsManager() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
+      <LoadingSpinner message="Loading admin dashboard..." />
     );
   }
 
