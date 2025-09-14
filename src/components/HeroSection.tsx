@@ -1,14 +1,12 @@
 import React, { useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import heroImage from '@/assets/hero-dj.jpg';
-
 const HeroSection = () => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [tilt, setTilt] = useState({
     rx: 0,
     ry: 0
   });
-
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const el = containerRef.current;
     if (!el) return;
@@ -26,12 +24,10 @@ const HeroSection = () => {
       ry
     });
   };
-
   const handleMouseLeave = () => setTilt({
     rx: 0,
     ry: 0
   });
-
   return <section id="hero" ref={containerRef} onMouseMove={handleMouseMove} onMouseLeave={handleMouseLeave} className="relative min-h-screen flex items-center justify-center overflow-hidden" style={{
     perspective: 1200
   }}>
@@ -87,28 +83,19 @@ const HeroSection = () => {
         delay: 0.2
       }}>
           {/* Replaced text with image - made smaller */}
-          <motion.div 
-            className="mb-6 flex justify-center"
-            style={{
-              transform: 'translateZ(60px)'
-            }}
-            animate={{
-              filter: ['drop-shadow(0 0 20px hsl(var(--neon-lime)))', 'drop-shadow(0 0 40px hsl(var(--neon-lime))) drop-shadow(0 0 60px hsl(var(--neon-lime)))', 'drop-shadow(0 0 20px hsl(var(--neon-lime)))']
-            }}
-            transition={{
-              duration: 2,
-              repeat: Infinity
-            }}
-          >
-            <img 
-              src="/continental_no_bg.png" 
-              alt="Continental Entertainments" 
-              className="max-w-full h-auto"
-              style={{
-                maxHeight: '150px', // Reduced from 200px to 150px
-                width: 'auto'
-              }}
-            />
+          <motion.div className="mb-6 flex justify-center" style={{
+          transform: 'translateZ(60px)'
+        }} animate={{
+          filter: ['drop-shadow(0 0 20px hsl(var(--neon-lime)))', 'drop-shadow(0 0 40px hsl(var(--neon-lime))) drop-shadow(0 0 60px hsl(var(--neon-lime)))', 'drop-shadow(0 0 20px hsl(var(--neon-lime)))']
+        }} transition={{
+          duration: 2,
+          repeat: Infinity
+        }}>
+            <img src="/continental_no_bg.png" alt="Continental Entertainments" className="max-w-full h-auto" style={{
+            maxHeight: '150px',
+            // Reduced from 200px to 150px
+            width: 'auto'
+          }} />
           </motion.div>
 
           <motion.div initial={{
@@ -121,9 +108,7 @@ const HeroSection = () => {
           duration: 0.8,
           delay: 0.6
         }} className="mb-8 -mt-4">
-            <p className="text-xl md:text-2xl text-muted-gray mb-2 font-inter">
-              PREMIUM DJ SERVICES & EVENT EXPERIENCES
-            </p>
+            
             <div className="w-32 h-1 bg-gradient-to-r from-transparent via-secondary to-transparent mx-auto animate-pulse"></div>
           </motion.div>
 
@@ -165,5 +150,4 @@ const HeroSection = () => {
       </div>
     </section>;
 };
-
 export default HeroSection;
