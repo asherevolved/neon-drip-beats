@@ -5,7 +5,7 @@ import Splash from '@/components/Splash'
 import './index.css'
 
 function Root() {
-	const [ready, setReady] = useState(false);
+	const [ready, setReady] = useState(true); // Changed to true to skip splash
 
 	return (
 		<>
