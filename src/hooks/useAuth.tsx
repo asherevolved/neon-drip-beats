@@ -23,33 +23,62 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Set up auth state listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        
-        if (session?.user) {
-          // Check if user is admin
-          try {
-            const { data: profile, error } = await supabase
-              .from('profiles')
-              .select('role')
-              .eq('id', session.user.id)
-              .maybeSingle(); // Use maybeSingle instead of single to avoid errors
-            
-            setIsAdmin(profile?.role === 'admin');
-          } catch (error) {
-            console.error('Error checking admin status:', error);
-            setIsAdmin(false);
-          }
-        } else {
-          setIsAdmin(false);
-        }
-        
+    console.log('useAuth: Setting up auth state listener');
+    
+    // Get initial session
+    const getInitialSession = async () => {
+      console.log('useAuth: Getting initial session');
+      const { data: { session }, error } = await supabase.auth.getSession();
+      console.log('useAuth: Initial session result:', { session: !!session, user: session?.user?.email, error });
+      
+      if (session) {
+        // Trigger the auth state change handler manually for initial session
+        handleAuthStateChange('INITIAL_SESSION', session);
+      } else {
+        console.log('useAuth: No initial session, setting loading to false');
         setLoading(false);
       }
-    );
+    };
+
+    const handleAuthStateChange = async (event: string, session: any) => {
+      console.log('useAuth: Auth state changed', { event, user: session?.user?.email, session: !!session });
+      
+      setSession(session);
+      setUser(session?.user ?? null);
+      
+      if (session?.user) {
+        // Check if user is admin
+        try {
+          console.log('useAuth: Checking admin status for user:', session.user.email);
+          const { data: profile, error } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', session.user.id)
+            .maybeSingle(); // Use maybeSingle instead of single to avoid errors
+          
+          console.log('useAuth: Profile query result:', { profile, error });
+          
+          const adminStatus = profile?.role === 'admin';
+          console.log('useAuth: Admin status:', adminStatus);
+          setIsAdmin(adminStatus);
+        } catch (error) {
+          console.error('useAuth: Error checking admin status:', error);
+          setIsAdmin(false);
+        }
+      } else {
+        console.log('useAuth: No user session, setting isAdmin to false');
+        setIsAdmin(false);
+      }
+      
+      console.log('useAuth: Setting loading to false');
+      setLoading(false);
+    };
+    
+    // Set up auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(handleAuthStateChange);
+
+    // Get initial session
+    getInitialSession();
 
     return () => subscription.unsubscribe();
   }, []);
