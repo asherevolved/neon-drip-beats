@@ -50,7 +50,9 @@ export default function Checkout() {
         const parsed = JSON.parse(itemsParam) as TicketItem[];
         setTicketItems(parsed);
         const calculatedSubtotal = parsed.reduce((sum, item) => sum + (item.price * item.qty), 0);
-        const calculatedTotal = calculatedSubtotal + PLATFORM_FEE;
+        const calculatedTotal = calculateTotalFromTickets(
+          parsed.map(item => ({ price: item.price, quantity: item.qty }))
+        );
         setSubtotal(calculatedSubtotal);
         setTotal(calculatedTotal);
       } catch (error) {
