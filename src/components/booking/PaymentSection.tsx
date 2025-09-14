@@ -10,12 +10,14 @@ import upiQrCode from '@/assets/upi-qr-real.jpg';
 
 interface PaymentSectionProps {
   totalAmount: number;
+  subtotal?: number;
+  platformFee?: number;
   onBack: () => void;
   onPaymentComplete: (file: File) => Promise<void>;
   loading: boolean;
 }
 
-export function PaymentSection({ totalAmount, onBack, onPaymentComplete, loading }: PaymentSectionProps) {
+export function PaymentSection({ totalAmount, subtotal, platformFee = 20, onBack, onPaymentComplete, loading }: PaymentSectionProps) {
   const [screenshot, setScreenshot] = useState<File | null>(null);
   const [upiCopied, setUpiCopied] = useState(false);
   const { toast } = useToast();
@@ -105,9 +107,31 @@ export function PaymentSection({ totalAmount, onBack, onPaymentComplete, loading
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Amount Summary */}
-        <div className="bg-primary/10 rounded-lg p-4 text-center">
-          <p className="text-sm text-muted-foreground mb-1">Total Amount</p>
-          <p className="text-3xl font-bold text-primary">{formatINR(totalAmount)}</p>
+        <div className="bg-primary/10 rounded-lg p-4">
+          {subtotal !== undefined && (
+            <div className="space-y-2 mb-3">
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Tickets Subtotal</span>
+                <span>{formatINR(subtotal)}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Platform Fees</span>
+                <span>{formatINR(platformFee)}</span>
+              </div>
+              <div className="border-t border-primary/20 pt-2">
+                <div className="flex justify-between font-semibold">
+                  <span>Total Amount</span>
+                  <span className="text-primary text-lg">{formatINR(totalAmount)}</span>
+                </div>
+              </div>
+            </div>
+          )}
+          {subtotal === undefined && (
+            <div className="text-center">
+              <p className="text-sm text-muted-foreground mb-1">Total Amount</p>
+              <p className="text-3xl font-bold text-primary">{formatINR(totalAmount)}</p>
+            </div>
+          )}
         </div>
 
         {/* Payment Instructions */}

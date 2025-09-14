@@ -8,6 +8,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { PaymentSection } from './PaymentSection';
 import { ArrowLeft, Loader2 } from 'lucide-react';
+import { PLATFORM_FEE, calculateSubtotal, calculateTotalAmount } from '@/lib/platformFee';
 
 interface Event {
   id: string;
@@ -49,8 +50,12 @@ export function CheckoutForm({ event, selectedTickets, onBack }: CheckoutFormPro
   const [bookingReference, setBookingReference] = useState<string>('');
   const { toast } = useToast();
 
+  const getSubtotal = () => {
+    return calculateSubtotal(selectedTickets);
+  };
+
   const getTotalAmount = () => {
-    return selectedTickets.reduce((total, ticket) => total + (ticket.price * ticket.quantity), 0);
+    return calculateTotalAmount(getSubtotal());
   };
 
   const handleDetailsSubmit = (e: React.FormEvent) => {
@@ -255,6 +260,8 @@ export function CheckoutForm({ event, selectedTickets, onBack }: CheckoutFormPro
       {currentStep === 'payment' && (
         <PaymentSection
           totalAmount={getTotalAmount()}
+          subtotal={getSubtotal()}
+          platformFee={PLATFORM_FEE}
           onBack={() => setCurrentStep('details')}
           onPaymentComplete={handlePaymentComplete}
           loading={loading}

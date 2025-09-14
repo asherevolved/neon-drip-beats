@@ -149,7 +149,7 @@ const EventsSection = () => {
         }} className="glass-card p-6 group cursor-pointer">
               {/* Event Banner Image */}
               {event.banner_image_url ? (
-                <div className="w-full h-48 mb-4 overflow-hidden rounded-md bg-gray-800">
+                <div className="w-full mb-6 overflow-hidden rounded-lg bg-gray-800" style={{ aspectRatio: '23/10' }}>
                   <img
                     src={event.banner_image_url}
                     alt={event.title}
@@ -164,7 +164,7 @@ const EventsSection = () => {
                   />
                 </div>
               ) : (
-                <div className="w-full h-48 mb-4 bg-gradient-to-br from-gray-800 to-gray-900 rounded-md flex items-center justify-center">
+                <div className="w-full mb-6 bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg flex items-center justify-center" style={{ aspectRatio: '23/10' }}>
                   <span className="text-gray-500 text-sm">No Image</span>
                 </div>
               )}

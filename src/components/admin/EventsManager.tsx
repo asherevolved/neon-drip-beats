@@ -190,7 +190,7 @@ export function EventsManager() {
         {filteredEvents.map((event) => (
           <Card key={event.id} className="bg-card/50 border-primary/20 overflow-hidden">
             {event.banner_image_url ? (
-              <div className="aspect-video w-full overflow-hidden bg-gray-100">
+              <div className="w-full overflow-hidden bg-gray-100 rounded-t-lg" style={{ aspectRatio: '23/10' }}>
                 <img
                   src={event.banner_image_url}
                   alt={event.title}
@@ -205,7 +205,7 @@ export function EventsManager() {
                 />
               </div>
             ) : (
-              <div className="aspect-video w-full bg-gray-200 flex items-center justify-center">
+              <div className="w-full bg-gray-200 flex items-center justify-center rounded-t-lg" style={{ aspectRatio: '23/10' }}>
                 <span className="text-gray-500 text-sm">No Banner Image</span>
               </div>
             )}

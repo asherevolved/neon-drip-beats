@@ -132,12 +132,21 @@ export function EventDialog({ event, isOpen, onClose, onSaved }: EventDialogProp
     e.preventDefault();
     if (!user) return;
 
+    console.log('Starting form submission...', { 
+      event: event?.id, 
+      formData, 
+      bannerImage, 
+      galleryImages, 
+      ticketTypes 
+    });
+
     setLoading(true);
     try {
       let eventId = event?.id;
 
       if (event) {
         // Update existing event
+        console.log('Updating existing event:', event.id);
         const { error } = await supabase
           .from('events')
           .update({
@@ -148,10 +157,14 @@ export function EventDialog({ event, isOpen, onClose, onSaved }: EventDialogProp
           })
           .eq('id', event.id);
 
-        if (error) throw error;
+        if (error) {
+          console.error('Error updating event:', error);
+          throw error;
+        }
+        console.log('Event updated successfully');
       } else {
         // Create new event
-        // Auto-set category based on date
+        console.log('Creating new event...');
         const eventDate = new Date(formData.date);
         const today = new Date();
         today.setHours(0, 0, 0, 0);
@@ -170,28 +183,56 @@ export function EventDialog({ event, isOpen, onClose, onSaved }: EventDialogProp
           .select()
           .single();
 
-        if (error) throw error;
+        if (error) {
+          console.error('Error creating event:', error);
+          throw error;
+        }
         eventId = newEvent.id;
+        console.log('New event created:', eventId);
       }
 
       // Handle ticket types
       if (eventId) {
+        console.log('Processing ticket types for event:', eventId);
+        
         // Delete removed ticket types
         if (event) {
           const existingIds = ticketTypes.filter(t => t.id).map(t => t.id);
-          const { error: deleteError } = await supabase
-            .from('ticket_types')
-            .delete()
-            .eq('event_id', eventId)
-            .not('id', 'in', `(${existingIds.join(',')})`);
+          console.log('Existing ticket type IDs:', existingIds);
+          
+          if (existingIds.length > 0) {
+            // Delete ticket types that are no longer in the list
+            const { error: deleteError } = await supabase
+              .from('ticket_types')
+              .delete()
+              .eq('event_id', eventId)
+              .not('id', 'in', `(${existingIds.join(',')})`);
 
-          if (deleteError) throw deleteError;
+            if (deleteError) {
+              console.error('Error deleting old ticket types:', deleteError);
+              throw deleteError;
+            }
+            console.log('Deleted old ticket types');
+          } else {
+            // If no existing IDs, delete all ticket types for this event
+            const { error: deleteAllError } = await supabase
+              .from('ticket_types')
+              .delete()
+              .eq('event_id', eventId);
+
+            if (deleteAllError) {
+              console.error('Error deleting all ticket types:', deleteAllError);
+              throw deleteAllError;
+            }
+            console.log('Deleted all existing ticket types');
+          }
         }
 
         // Upsert ticket types
         for (const ticket of ticketTypes) {
           if (ticket.id) {
             // Update existing
+            console.log('Updating ticket type:', ticket.id);
             const { error } = await supabase
               .from('ticket_types')
               .update({
@@ -202,9 +243,13 @@ export function EventDialog({ event, isOpen, onClose, onSaved }: EventDialogProp
               })
               .eq('id', ticket.id);
 
-            if (error) throw error;
+            if (error) {
+              console.error('Error updating ticket type:', error);
+              throw error;
+            }
           } else {
             // Create new
+            console.log('Creating new ticket type for event:', eventId);
             const { error } = await supabase
               .from('ticket_types')
               .insert({
@@ -212,22 +257,28 @@ export function EventDialog({ event, isOpen, onClose, onSaved }: EventDialogProp
                 name: ticket.name,
                 price: ticket.price,
                 capacity: ticket.capacity,
-                sold: ticket.sold,
+                sold: ticket.sold || 0,
                 enabled: ticket.enabled,
               });
 
-            if (error) throw error;
+            if (error) {
+              console.error('Error creating ticket type:', error);
+              throw error;
+            }
           }
         }
+        console.log('All ticket types processed successfully');
       }
 
+      console.log('Form submission completed successfully');
       toast({
         title: "Success",
-        description: `Event saved to ${formData.category === 'upcoming' ? 'Upcoming' : 'Past'}`,
+        description: `Event ${event ? 'updated' : 'created'} successfully`,
       });
 
       onSaved();
     } catch (error: any) {
+      console.error('Form submission failed:', error);
       toast({
         title: "Error",
         description: error.message || `Failed to ${event ? 'update' : 'create'} event`,
@@ -440,7 +491,7 @@ export function EventDialog({ event, isOpen, onClose, onSaved }: EventDialogProp
             <Button type="button" variant="outline" onClick={onClose}>
               Cancel
             </Button>
-            <Button type="submit" disabled={loading}>
+            <Button type="submit" disabled={loading || !user}>
               {loading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />

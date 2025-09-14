@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Minus, Plus } from 'lucide-react';
 import { formatINR } from '@/lib/formatCurrency';
+import { PLATFORM_FEE, calculateSubtotal, calculateTotalAmount } from '@/lib/platformFee';
 
 interface TicketType {
   id: string;
@@ -64,6 +65,14 @@ export function TicketSelector({ ticketTypes, selectedTickets, onTicketChange, o
 
   const getTotalTickets = () => {
     return selectedTickets.reduce((total, ticket) => total + ticket.quantity, 0);
+  };
+
+  const getSubtotal = () => {
+    return calculateSubtotal(selectedTickets);
+  };
+
+  const getTotalAmount = () => {
+    return calculateTotalAmount(getSubtotal());
   };
 
   if (ticketTypes.length === 0) {
@@ -154,10 +163,34 @@ export function TicketSelector({ ticketTypes, selectedTickets, onTicketChange, o
         </div>
 
         {getTotalTickets() > 0 && (
-          <div className="flex justify-end pt-4 border-t border-primary/20">
-            <Button onClick={onContinue} className="bg-primary hover:bg-primary/90">
-              Buy Tickets ({getTotalTickets()} ticket{getTotalTickets() !== 1 ? 's' : ''})
-            </Button>
+          <div className="space-y-4 pt-4 border-t border-primary/20">
+            {/* Order Summary */}
+            <div className="bg-primary/5 rounded-lg p-4">
+              <h4 className="font-semibold mb-3">Order Summary</h4>
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Tickets Subtotal</span>
+                  <span>{formatINR(getSubtotal())}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Platform Fees</span>
+                  <span>{formatINR(PLATFORM_FEE)}</span>
+                </div>
+                <div className="border-t border-primary/20 pt-2">
+                  <div className="flex justify-between font-semibold">
+                    <span>Amount to Pay</span>
+                    <span className="text-primary text-lg">{formatINR(getTotalAmount())}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            {/* Continue Button */}
+            <div className="flex justify-end">
+              <Button onClick={onContinue} className="bg-primary hover:bg-primary/90">
+                Continue to Checkout ({getTotalTickets()} ticket{getTotalTickets() !== 1 ? 's' : ''})
+              </Button>
+            </div>
           </div>
         )}
       </CardContent>

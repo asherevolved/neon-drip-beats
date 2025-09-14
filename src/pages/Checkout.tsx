@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, Copy, Upload, CheckCircle } from 'lucide-react';
 import { formatINR } from '@/lib/formatCurrency';
+import { PLATFORM_FEE, calculateTotalFromTickets } from '@/lib/platformFee';
 import upiQRImage from '@/assets/upi-qr-real.jpg';
 
 interface TicketItem {
@@ -25,6 +26,7 @@ export default function Checkout() {
   const [eventId] = useState(searchParams.get('eventId') || '');
   const [eventTitle] = useState(searchParams.get('eventTitle') || '');
   const [ticketItems, setTicketItems] = useState<TicketItem[]>([]);
+  const [subtotal, setSubtotal] = useState(0);
   const [total, setTotal] = useState(0);
   
   const [formData, setFormData] = useState({
@@ -47,7 +49,9 @@ export default function Checkout() {
       try {
         const parsed = JSON.parse(itemsParam) as TicketItem[];
         setTicketItems(parsed);
-        const calculatedTotal = parsed.reduce((sum, item) => sum + (item.price * item.qty), 0);
+        const calculatedSubtotal = parsed.reduce((sum, item) => sum + (item.price * item.qty), 0);
+        const calculatedTotal = calculatedSubtotal + PLATFORM_FEE;
+        setSubtotal(calculatedSubtotal);
         setTotal(calculatedTotal);
       } catch (error) {
         console.error('Failed to parse ticket items:', error);
@@ -184,10 +188,20 @@ export default function Checkout() {
                   </div>
                 ))}
                 
-                <div className="border-t border-primary/20 pt-4">
-                  <div className="flex justify-between items-center">
-                    <p className="text-lg font-semibold">Total</p>
-                    <p className="text-xl font-bold text-primary">{formatINR(total)}</p>
+                <div className="border-t border-primary/20 pt-4 space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Tickets Subtotal</span>
+                    <span>{formatINR(subtotal)}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Platform Fees</span>
+                    <span>{formatINR(PLATFORM_FEE)}</span>
+                  </div>
+                  <div className="border-t border-primary/20 pt-2">
+                    <div className="flex justify-between items-center">
+                      <p className="text-lg font-semibold">Amount to Pay</p>
+                      <p className="text-xl font-bold text-primary">{formatINR(total)}</p>
+                    </div>
                   </div>
                 </div>
               </CardContent>
@@ -284,7 +298,7 @@ export default function Checkout() {
                         
                         <div className="text-sm text-muted-foreground space-y-1">
                           <p>1. Scan QR or use UPI ID</p>
-                          <p>2. Pay ₹{total}</p>
+                          <p>2. Pay exact amount: {formatINR(total)}</p>
                           <p>3. Upload payment screenshot</p>
                         </div>
                       </div>
@@ -342,9 +356,9 @@ export default function Checkout() {
         <div className="fixed bottom-0 left-0 right-0 bg-background/90 backdrop-blur-sm border-t border-primary/20 p-4 md:hidden">
           <div className="container mx-auto flex justify-between items-center">
             <div>
-              <p className="font-semibold">Total: {formatINR(total)}</p>
+              <p className="font-semibold">Amount to Pay: {formatINR(total)}</p>
               <p className="text-sm text-muted-foreground">
-                {ticketItems.reduce((sum, item) => sum + item.qty, 0)} tickets
+                {ticketItems.reduce((sum, item) => sum + item.qty, 0)} tickets + platform fee
               </p>
             </div>
             <Button 
