@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Navigate, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -13,6 +14,7 @@ import { Calendar, MapPin, Clock, ArrowLeft, Copy, Upload, CheckCircle, Loader2 
 import { format } from 'date-fns';
 import { Link } from 'react-router-dom';
 import { formatINR } from '@/lib/formatCurrency';
+import { PLATFORM_FEE, calculateTotalFromTickets } from '@/lib/platformFee';
 import upiQRImage from '@/assets/upi-qr-real.jpg';
 
 interface Event {
@@ -105,8 +107,14 @@ export default function EventBooking() {
     }
   };
 
-  const getTotalAmount = () => {
+  const getSubtotal = () => {
     return selectedTickets.reduce((total, ticket) => total + (ticket.price * ticket.quantity), 0);
+  };
+
+  const getTotalAmount = () => {
+    return calculateTotalFromTickets(
+      selectedTickets.map(ticket => ({ price: ticket.price, quantity: ticket.quantity }))
+    );
   };
 
   const getTotalQuantity = () => {
@@ -347,17 +355,27 @@ export default function EventBooking() {
                         </div>
                       ))}
                       
-                      <div className="border-t border-primary/20 pt-4">
-                        <div className="flex justify-between items-center">
-                          <div>
-                            <p className="font-semibold">Total</p>
-                            <p className="text-sm text-muted-foreground">
-                              {getTotalQuantity()} ticket{getTotalQuantity() !== 1 ? 's' : ''}
+                      <div className="border-t border-primary/20 pt-4 space-y-2">
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">Tickets Subtotal</span>
+                          <span>{formatINR(getSubtotal())}</span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">Platform Fees</span>
+                          <span>{formatINR(PLATFORM_FEE)}</span>
+                        </div>
+                        <div className="border-t border-primary/20 pt-2">
+                          <div className="flex justify-between items-center">
+                            <div>
+                              <p className="font-semibold">Amount to Pay</p>
+                              <p className="text-sm text-muted-foreground">
+                                {getTotalQuantity()} ticket{getTotalQuantity() !== 1 ? 's' : ''}
+                              </p>
+                            </div>
+                            <p className="text-xl font-bold text-primary">
+                              {formatINR(getTotalAmount())}
                             </p>
                           </div>
-                          <p className="text-xl font-bold text-primary">
-                            {formatINR(getTotalAmount())}
-                          </p>
                         </div>
                       </div>
                     </>

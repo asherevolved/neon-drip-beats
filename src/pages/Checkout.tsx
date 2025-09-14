@@ -8,7 +8,6 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, Copy, Upload, CheckCircle } from 'lucide-react';
 import { formatINR } from '@/lib/formatCurrency';
-import { PLATFORM_FEE, calculateTotalFromTickets } from '@/lib/platformFee';
 import upiQRImage from '@/assets/upi-qr-real.jpg';
 
 interface TicketItem {
@@ -26,8 +25,8 @@ export default function Checkout() {
   const [eventId] = useState(searchParams.get('eventId') || '');
   const [eventTitle] = useState(searchParams.get('eventTitle') || '');
   const [ticketItems, setTicketItems] = useState<TicketItem[]>([]);
-  const [subtotal, setSubtotal] = useState(0);
   const [total, setTotal] = useState(0);
+  const [subtotal, setSubtotal] = useState(0);
   
   const [formData, setFormData] = useState({
     name: '',
@@ -43,6 +42,8 @@ export default function Checkout() {
 
   const UPI_ID = '9606563393@ybl';
 
+  const PLATFORM_FEE = 20;
+
   useEffect(() => {
     const itemsParam = searchParams.get('items');
     if (itemsParam) {
@@ -50,11 +51,8 @@ export default function Checkout() {
         const parsed = JSON.parse(itemsParam) as TicketItem[];
         setTicketItems(parsed);
         const calculatedSubtotal = parsed.reduce((sum, item) => sum + (item.price * item.qty), 0);
-        const calculatedTotal = calculateTotalFromTickets(
-          parsed.map(item => ({ price: item.price, quantity: item.qty }))
-        );
         setSubtotal(calculatedSubtotal);
-        setTotal(calculatedTotal);
+        setTotal(calculatedSubtotal + PLATFORM_FEE);
       } catch (error) {
         console.error('Failed to parse ticket items:', error);
       }
@@ -191,19 +189,17 @@ export default function Checkout() {
                 ))}
                 
                 <div className="border-t border-primary/20 pt-4 space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Tickets Subtotal</span>
-                    <span>{formatINR(subtotal)}</span>
+                  <div className="flex justify-between text-muted-foreground">
+                    <p>Tickets Subtotal</p>
+                    <p>{formatINR(subtotal)}</p>
                   </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Platform Fees</span>
-                    <span>{formatINR(PLATFORM_FEE)}</span>
+                  <div className="flex justify-between text-muted-foreground">
+                    <p>Platform Fees</p>
+                    <p>{formatINR(PLATFORM_FEE)}</p>
                   </div>
-                  <div className="border-t border-primary/20 pt-2">
-                    <div className="flex justify-between items-center">
-                      <p className="text-lg font-semibold">Amount to Pay</p>
-                      <p className="text-xl font-bold text-primary">{formatINR(total)}</p>
-                    </div>
+                  <div className="flex justify-between items-center font-bold text-lg border-t border-dashed border-primary/20 pt-2 mt-2">
+                    <p>Amount to Pay</p>
+                    <p className="text-xl text-primary">{formatINR(total)}</p>
                   </div>
                 </div>
               </CardContent>
