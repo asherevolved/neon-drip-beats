@@ -144,7 +144,26 @@ const AboutSection = () => {
         duration: 0.6,
         delay: 0.4
       }} className="grid grid-cols-2 md:grid-cols-4 gap-8">
-        {stats.map((stat, index) => {})}
+        {stats.map((stat, index) => (
+          <motion.div
+            key={index}
+            initial={{ opacity: 0, scale: 0.8 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.4, delay: index * 0.1 }}
+            className="text-center group"
+          >
+            <div className="bg-surface-dark/30 backdrop-blur-sm rounded-lg p-6 border border-surface-light/10 hover:border-primary/30 transition-all duration-300">
+              <stat.icon className={`w-8 h-8 mx-auto mb-3 ${stat.color}`} />
+              <div className="font-bebas text-3xl md:text-4xl mb-2 text-text-white">
+                {stat.number}
+              </div>
+              <div className="text-muted-gray text-sm font-inter">
+                {stat.label}
+              </div>
+            </div>
+          </motion.div>
+        ))}
         </motion.div>
       </div>
     </section>;

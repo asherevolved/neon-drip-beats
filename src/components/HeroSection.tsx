@@ -42,7 +42,7 @@ const HeroSection = () => {
           loop 
           playsInline 
           preload="metadata"
-          loading="lazy"
+          
           aria-hidden="true"
           // inline style to ensure brightness/saturation increase across environments
           style={{
