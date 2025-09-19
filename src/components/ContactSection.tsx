@@ -36,7 +36,7 @@ const ContactSection = () => {
       icon: Phone,
       title: 'CALL US',
       info: '+91 99724 93393',
-      subInfo: 'Available 24/7',
+      subInfo: 'Available 12/7',
       color: 'text-primary'
     },
     {
@@ -49,7 +49,7 @@ const ContactSection = () => {
     {
       icon: Clock,
       title: 'AVAILABILITY',
-      info: '24/7 Booking',
+      info: '12/7 Booking',
       subInfo: '',
       color: 'text-secondary'
     }
