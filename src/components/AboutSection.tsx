@@ -128,55 +128,7 @@ const AboutSection = () => {
           </motion.div>
 
           {/* Skills & Expertise */}
-          <motion.div initial={{
-          opacity: 0,
-          x: 50
-        }} whileInView={{
-          opacity: 1,
-          x: 0
-        }} viewport={{
-          once: true
-        }} transition={{
-          duration: 0.6,
-          delay: 0.2
-        }} className="glass-card p-8">
-            <h4 className="font-bebas text-2xl md:text-3xl mb-8 text-text-white text-center">
-              <Volume2 className="w-8 h-8 inline mr-3 text-primary" />
-              EXPERTISE
-            </h4>
-            
-            <div className="space-y-6">
-              {skills.map((skill, index) => <motion.div key={index} initial={{
-              opacity: 0,
-              y: 20
-            }} whileInView={{
-              opacity: 1,
-              y: 0
-            }} viewport={{
-              once: true
-            }} transition={{
-              duration: 0.4,
-              delay: index * 0.1
-            }}>
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="font-bebas text-sm text-text-white">{skill.name}</span>
-                    <span className="font-bebas text-sm text-primary">{skill.level}%</span>
-                  </div>
-                  <div className="w-full bg-charcoal rounded-full h-2">
-                    <motion.div initial={{
-                  width: 0
-                }} whileInView={{
-                  width: `${skill.level}%`
-                }} viewport={{
-                  once: true
-                }} transition={{
-                  duration: 1,
-                  delay: index * 0.1 + 0.5
-                }} className="h-2 rounded-full bg-gradient-to-r from-primary to-neon-lime-glow shadow-neon" />
-                  </div>
-                </motion.div>)}
-            </div>
-          </motion.div>
+          
         </div>
 
         {/* Stats Section */}
@@ -192,33 +144,7 @@ const AboutSection = () => {
         duration: 0.6,
         delay: 0.4
       }} className="grid grid-cols-2 md:grid-cols-4 gap-8">
-          {stats.map((stat, index) => <motion.div key={index} initial={{
-          opacity: 0,
-          scale: 0.8
-        }} whileInView={{
-          opacity: 1,
-          scale: 1
-        }} viewport={{
-          once: true
-        }} transition={{
-          duration: 0.4,
-          delay: index * 0.1
-        }} className="glass-card p-6 text-center group hover:scale-105 transition-transform">
-              <stat.icon className={`w-8 h-8 mx-auto mb-4 ${stat.color} group-hover:animate-pulse`} />
-              <motion.div initial={{
-            opacity: 0
-          }} whileInView={{
-            opacity: 1
-          }} viewport={{
-            once: true
-          }} transition={{
-            duration: 0.6,
-            delay: index * 0.1 + 0.3
-          }} className="font-bebas text-3xl md:text-4xl mb-2 text-text-white">
-                {stat.number}
-              </motion.div>
-              <p className="font-bebas text-xs text-muted-gray">{stat.label}</p>
-            </motion.div>)}
+          {stats.map((stat, index) => {})}
         </motion.div>
       </div>
     </section>;
